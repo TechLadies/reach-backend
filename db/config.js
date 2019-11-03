@@ -2,14 +2,14 @@ require('dotenv').config()
 
 module.exports = {
   development: {
-    database: 'starterkit_development',
+    database: 'reach_development',
     host: 'localhost',
     dialect: 'postgres',
     username: process.env.DB_USERNAME || 'postgres',
     password: process.env.DB_PASSWORD,
   },
   test: {
-    database: 'starterkit_test',
+    database: 'reach_test',
     host: 'localhost',
     dialect: 'postgres',
     username: process.env.DB_USERNAME || 'postgres',
