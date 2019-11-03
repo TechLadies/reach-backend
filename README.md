@@ -23,3 +23,10 @@
 	```
 
 5. You can update the content of `public/index.html`
+
+## Windows Users
+
+Some things to note: 
+
+- Use "Git bash" to run the commands above.
+- After copying `.env` file, open it up and update the `DB_USER` and `DB_PASSWORD` to what you have set for your Postgres root user in Windows.
