@@ -2,14 +2,15 @@
   "name": "nodejs-backend-starterkit",
   "version": "0.0.0",
   "scripts": {
-    "start": "NODE_ENV=production node ./bin/www",
-    "dev": "NODE_ENV=development PORT=3001 DEBUG=app:* nodemon --ignore '*.test.js' --watch src bin/www",
+    "start": "cross-env NODE_ENV=production node ./bin/www",
+    "dev": "cross-env NODE_ENV=development PORT=3001 DEBUG=app:* nodemon --ignore '*.test.js' --watch src bin/www",
     "test": "jest",
     "test:watch": "jest --watch",
     "jsfmt": "eslint \"src/**/*.js\" --fix",
     "jslint": "eslint \"src/**/*.js\"",
     "db:create": "./node_modules/.bin/sequelize db:create",
-    "db:migrate": "./node_modules/.bin/sequelize db:migrate"
+    "db:migrate": "./node_modules/.bin/sequelize db:migrate",
+    "db:seed": "./node_modules/.bin/sequelize db:seed:all"
   },
   "repository": {
     "type": "git",
@@ -37,6 +38,7 @@
     "sequelize-cli": "^5.5.0"
   },
   "devDependencies": {
+    "cross-env": "^6.0.3",
     "eslint": "^6.1.0",
     "eslint-config-standard": "^13.0.1",
     "eslint-plugin-import": "^2.18.2",
