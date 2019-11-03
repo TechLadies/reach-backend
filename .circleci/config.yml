@@ -11,12 +11,13 @@ jobs:
       - image: circleci/postgres:11-alpine
         environment:
           POSTGRES_USER: circleci
-          POSTGRES_DB: starterkit_test
+          POSTGRES_DB: reach_test
     environment:
       NODE_ENV: test
       PGUSER: circleci
-      PGDATABASE: starterkit_test
+      PGDATABASE: reach_test
       EXPRESS_SESSION_SECRET: ABCD1234
+      DB_USERNAME: circleci
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
