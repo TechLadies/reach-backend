@@ -2,7 +2,7 @@
   "name": "nodejs-backend-starterkit",
   "version": "0.0.0",
   "scripts": {
-    "start": "cross-env NODE_ENV=production node ./bin/www",
+    "start": "NODE_ENV=production node ./bin/www",
     "dev": "cross-env NODE_ENV=development PORT=3001 DEBUG=app:* nodemon --ignore '*.test.js' --watch src bin/www",
     "test": "jest",
     "test:watch": "jest --watch",
