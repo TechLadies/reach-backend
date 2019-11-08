@@ -2,7 +2,7 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Donations', {
-      donationId: {
+      id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -10,49 +10,72 @@ module.exports = {
       },
       donorId: {
         allowNull: false,
-        autoIncrement: true,
         foreignKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {                 // Add this for foreign key constraints
+          model: 'Donors',
+          key: 'id'
+        },
+        onUpdate: 'cascade',
+        onDelete: 'cascade'
       },
       donationDate: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        allowNull: false
       },
       donationAmount: {
-        type: Sequelize.NUMERIC
+        type: Sequelize.NUMERIC,
+        allowNull: false
       },
       sourceId:{
         allowNull: false,
-        autoIncrement: true,
-        foreignKey: false,
-        type: Sequelize.INTEGER
+        foreignKey: true,
+        type: Sequelize.INTEGER,
+        references: {                 // Add this for foreign key constraints
+          model: 'Sources',
+          key: 'id'
+        },
+        onUpdate: 'cascade'
       },
       intentId: {
-        allowNull: false,
-        autoIncrement: false,
+        allowNull: true,
         foreignKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {                 // Add this for foreign key constraints
+          model: 'Intents',
+          key: 'id'
+        },
+        onUpdate: 'cascade'
       },
-      paymenttypeId: {
-        allowNull:false,
-        autoIncrement:false,
-        foreignKey:true,
-        type: Sequelize.INTEGER
-      },
-      taxDeduction:{
-        allowNull:false,  
-        type: Sequelize.BOOLEAN
-      },
-      remarks:{
-          allowNull:false,
-          type: Sequelize.STRING
-      },
-      receipt:{
-        allowNull:false,
-        type: Sequelize.STRING   
+      paymentTypeId: {
+        allowNull: false,
+        foreignKey: true,
+        type: Sequelize.INTEGER,
+        references: {                 // Add this for foreign key constraints
+          model: 'PaymentTypes',
+          key: 'id'
+        },
+        onUpdate: 'cascade'
       },
       paymentRef:{
         allowNull:false,
         type: Sequelize.STRING
+      },
+      taxDeductible:{
+        allowNull:false,  
+        type: Sequelize.BOOLEAN
+      },
+      remarks:{
+          allowNull: true,
+          type: Sequelize.STRING
+      },
+      receiptNo:{
+        allowNull: true,
+        type: Sequelize.STRING   
+      },
+      receiptPrintDate: {
+         allowNull: true,
+         type: Sequelize.DATE
       },
       createdAt: {
         allowNull: false,

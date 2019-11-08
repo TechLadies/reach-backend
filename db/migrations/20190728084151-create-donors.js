@@ -2,38 +2,47 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Donors', {
-      donorId: {
+      id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      donoridNumber: {
-        allowNull: false,
+      idNo: {
+        allowNull: true,
         autoIncrement: false,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      idType:{
-          allowNull:false,
-          autoIncrement:false,
-          foreignkey:true,
-          type: Sequelize.INTEGER
+      idTypeId:{
+          allowNull: false,
+          foreignkey: true,
+          type: Sequelize.INTEGER,
+          references: {                 // Add this for foreign key constraints
+            model: 'IdTypes',
+            key: 'id'
+          },
+          onUpdate: 'cascade'
       },
       salutation: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: true
       },
       firstName: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false
       },
       lastName: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: true
       },
       email: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: true
       },
-      contact: {
-        type: Sequelize.STRING
+      contactNo: {
+        type: Sequelize.STRING,
+        allowNull: true
       },
       address1: {
         allowNull: false,
@@ -47,25 +56,31 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      prefferedContact: {
+      preferedContact: {
         allowNull: false,
         type: Sequelize.STRING
       },
       dnc: {
+        allowNull: true,
         type: Sequelize.BOOLEAN
       },
       dateofBirth: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.DATE
       },
       remarks:{
-          allowNull: false,
+          allowNull: true,
           type: Sequelize.STRING
       },
-      contactpersonId:{
-          allowNull: false,
+      contactPersonId:{
+          allowNull: true,
           foreignkey: true,
-          type: Sequelize.INTEGER
+          type: Sequelize.INTEGER,
+          eferences: {                 // Add this for foreign key constraints
+            model: 'ContactPersons',
+            key: 'id'
+          },
+          onUpdate: 'cascade'
       },
       createdAt: {
         allowNull: false,

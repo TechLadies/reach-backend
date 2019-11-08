@@ -2,7 +2,7 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Intents', {
-      intentId: {
+      id: {
         allowNull: false,
         autoIncrement: false,
         primaryKey: true,

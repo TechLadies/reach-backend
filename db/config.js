@@ -3,14 +3,14 @@ require('dotenv').config()
 module.exports = {
   development: {
     database: 'reach_development',
-    host: 'postgres-back',
+    host: process.env.DB_SERVER ||  'localhost',
     dialect: 'postgres',
     username: process.env.DB_USERNAME || 'postgres',
     password: process.env.DB_PASSWORD,
   },
   test: {
     database: 'reach_test',
-    host: 'postgres-back',
+    host: process.env.DB_SERVER ||  'localhost',
     dialect: 'postgres',
     username: process.env.DB_USERNAME || 'postgres',
     password: process.env.DB_PASSWORD,
