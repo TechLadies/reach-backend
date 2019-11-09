@@ -2,7 +2,7 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Donations', {
-      id: {
+      iid: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -27,6 +27,7 @@ module.exports = {
         type: Sequelize.NUMERIC,
         allowNull: false
       },
+      
       sourceId:{
         allowNull: false,
         foreignKey: true,
@@ -57,6 +58,10 @@ module.exports = {
         },
         onUpdate: 'cascade'
       },
+      donationType: {
+        allowNull:true,
+        type: Sequelize.STRING        
+      }
       paymentRef:{
         allowNull:false,
         type: Sequelize.STRING
@@ -73,10 +78,10 @@ module.exports = {
         allowNull: true,
         type: Sequelize.STRING   
       },
-      receiptPrintDate: {
-         allowNull: true,
-         type: Sequelize.DATE
-      },
+      void: {
+        allowNull:false,  
+        type: Sequelize.BOOLEAN        
+      }
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
