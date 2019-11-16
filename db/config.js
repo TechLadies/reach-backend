@@ -4,6 +4,7 @@ module.exports = {
   development: {
     database: 'reach_development',
     host: process.env.DB_SERVER ||  'localhost',
+    port: process.env.DB_PORT || 5432,
     dialect: 'postgres',
     username: process.env.DB_USERNAME || 'postgres',
     password: process.env.DB_PASSWORD,
@@ -11,6 +12,7 @@ module.exports = {
   test: {
     database: 'reach_test',
     host: process.env.DB_SERVER ||  'localhost',
+    port: process.env.DB_PORT || 5432,
     dialect: 'postgres',
     username: process.env.DB_USERNAME || 'postgres',
     password: process.env.DB_PASSWORD,

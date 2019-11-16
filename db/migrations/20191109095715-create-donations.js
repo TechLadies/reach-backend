@@ -2,7 +2,7 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Donations', {
-      iid: {
+      id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -27,7 +27,6 @@ module.exports = {
         type: Sequelize.NUMERIC,
         allowNull: false
       },
-      
       sourceId:{
         allowNull: false,
         foreignKey: true,
@@ -61,7 +60,7 @@ module.exports = {
       donationType: {
         allowNull:true,
         type: Sequelize.STRING        
-      }
+      },
       paymentRef:{
         allowNull:false,
         type: Sequelize.STRING
@@ -81,7 +80,7 @@ module.exports = {
       void: {
         allowNull:false,  
         type: Sequelize.BOOLEAN        
-      }
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
