@@ -6,60 +6,37 @@ module.exports = {
       return queryInterface.bulkInsert('IdTypes', 
         [
           {
-            name: 'NRIC',
+            description: 'NRIC',
             createdAt: Sequelize.literal('NOW()'),
             updatedAt: Sequelize.literal('NOW()')
           },
           {
-            name: 'FIN',
+            description: 'FIN',
             createdAt: Sequelize.literal('NOW()'),
             updatedAt: Sequelize.literal('NOW()')
           },
           {
-            NAME: 'UEN-LOCAL COMPANY',
+            description: 'UEN-LOCAL COMPANY',
             createdAt: Sequelize.literal('NOW()'),
             updatedAt: Sequelize.literal('NOW()')
           },
           {
-            NAME: 'UEN-BUSINESS',
+            description: 'UEN-BUSINESS',
             createdAt: Sequelize.literal('NOW()'),
             updatedAt: Sequelize.literal('NOW()')
           },
           {
-            NAME: 'UEN-OTHERS',
+            description: 'UEN-OTHERS',
             createdAt: Sequelize.literal('NOW()'),
             updatedAt: Sequelize.literal('NOW()')
           },
           {
-            NAME: 'OTHERS',
+            description: 'OTHERS',
             createdAt: Sequelize.literal('NOW()'),
             updatedAt: Sequelize.literal('NOW()')
           }
         ]);
-    
- 
-    await queryInterface.bulkInsert('UserRoles', [{
-      id: adminRoleId,
-      name: 'admin',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }, {
-      id: '2',
-      name: 'staff',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }], {}).then(() => {
-      return queryInterface.bulkInsert('Users', [{
-        name: 'John Smith',
-        username: 'john@smith.com',
-        passwordSalt: '',
-        passwordHash: '',
-        userRoleId: adminRoleId,
-        weight: 62.57,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }], {});
-    })
+
   },
 
   down: (queryInterface, Sequelize) => {

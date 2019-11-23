@@ -6,6 +6,7 @@ module.exports = {
       firstName: 'Admin',
       lastName: 'Tan',
       email: 'admin@techladies.co',
+      passwordHash: 'password',
       createdAt: new Date(),
       updatedAt: new Date()
     }], {});
