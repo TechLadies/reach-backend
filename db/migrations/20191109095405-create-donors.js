@@ -10,8 +10,6 @@ module.exports = {
       },
       idNo: {
         allowNull: true,
-        autoIncrement: false,
-        primaryKey: true,
         type: Sequelize.INTEGER
       },
       idTypeId:{
