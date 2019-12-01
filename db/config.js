@@ -2,7 +2,7 @@ require('dotenv').config()
 
 module.exports = {
   development: {
-    database: 'reach_development',
+    database: process.env.DB_NAME || 'reach_development',
     host: process.env.DB_SERVER ||  'localhost',
     port: process.env.DB_PORT || 5432,
     dialect: 'postgres',

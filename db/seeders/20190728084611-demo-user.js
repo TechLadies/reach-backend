@@ -9,7 +9,8 @@ module.exports = {
       passwordHash: 'password',
       createdAt: new Date(),
       updatedAt: new Date()
-    }], {});
+    }], {validate: true, 
+      individualHooks: true});
   },
 
   down: (queryInterface, Sequelize) => {
