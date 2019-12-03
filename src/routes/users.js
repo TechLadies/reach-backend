@@ -7,10 +7,10 @@ const db = require('../models/index')
 router.get('/', function (req, res, next) {
   debug('Hello World!')
 
-  db.User.findAll({
+  db.Users.findAll({
     attributes: ['firstName', 'lastName', 'email']
-  }).then(users => {
-    res.json(users)
+  }).then(Users => {
+    res.json(Users)
   })
 })
 

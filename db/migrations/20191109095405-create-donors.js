@@ -74,7 +74,7 @@ module.exports = {
           allowNull: true,
           foreignkey: true,
           type: Sequelize.INTEGER,
-          eferences: {                 // Add this for foreign key constraints
+          references: {                 // Add this for foreign key constraints
             model: 'ContactPersons',
             key: 'id'
           },
