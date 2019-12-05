@@ -1,17 +1,17 @@
-const express = require('express')
-const router = express.Router()
-const debug = require('debug')('app:users')
-const db = require('../models/index')
+const express = require('express');
+const router = express.Router();
+const debug = require('debug')('app:users');
+const db = require('../models/index');
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
-  debug('Hello World! dec 2019 here I am ')
+  debug('Hello World! dec 2019 here I am ');
 
   db.User.findAll({
-    attributes: ['firstName', 'lastName', 'email']
+    attributes: ['firstName', 'lastName', 'email'];
   }).then(users => {
-    res.json(users)
-  })
-})
+    res.json(users);
+  });
+});
 
-module.exports = router
+module.exports = router;
