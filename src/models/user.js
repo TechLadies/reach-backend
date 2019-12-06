@@ -5,9 +5,11 @@ module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
     "User",
     {
-      username: DataTypes.STRING,
+      firstName: DataTypes.STRING,
+      lastName: DataTypes.STRING,
+      email: DataTypes.STRING,
       passwordHash: DataTypes.STRING,
-      userRoleId: DataTypes.INTEGER
+      contactNo: DataTypes.STRING
     },
     {
       hooks: {
