@@ -1,10 +1,10 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const Sources = sequelize.define('Sources', {
+  const IdType = sequelize.define('IdTypes', {
     description: DataTypes.STRING
   }, {});
-  Sources.associate = function(models) {
+  IdType.associate = function(models) {
     // associations can be defined here
   };
-  return Sources;
+  return IdType;
 };

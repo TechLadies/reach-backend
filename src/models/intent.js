@@ -1,10 +1,10 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const PaymentTypes = sequelize.define('PaymentTypes', {
+  const Intent = sequelize.define('Intents', {
     description: DataTypes.STRING
   }, {});
-  PaymentTypes.associate = function(models) {
+  Intent.associate = function(models) {
     // associations can be defined here
   };
-  return PaymentTypes;
+  return Intent;
 };

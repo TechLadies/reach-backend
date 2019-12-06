@@ -1,6 +1,6 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const Donors = sequelize.define('Donors', {
+  const Donor = sequelize.define('Donors', {
     idNo: DataTypes.INTEGER,
     idTypeId: DataTypes.INTEGER,
     salutation: DataTypes.STRING,
@@ -17,8 +17,8 @@ module.exports = (sequelize, DataTypes) => {
     remarks: DataTypes.STRING,
     contactPersonId: DataTypes.INTEGER
   }, {});
-  Donors.associate = function(models) {
+  Donor.associate = function(models) {
     // associations can be defined here
   };
-  return Donors;
+  return Donor;
 };
