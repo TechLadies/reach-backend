@@ -8,9 +8,9 @@ router.get('/', function (req, res, next) {
   debug('Hello World! dec 2019 here I am ');
 
   db.User.findAll({
-    attributes: ['firstName', 'lastName', 'email'];
+    attributes: ['firstName', 'lastName', 'email']
   }).then(users => {
-    res.json(users);
+    res.json(users)
   });
 });
 
