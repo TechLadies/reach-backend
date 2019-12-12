@@ -9,6 +9,7 @@ const passport = require("../src/auth/passport");
 const auth = require(path.resolve('src/auth/auth'));
 const indexRouter = require('./routes/index')
 const usersRouter = require('./routes/users')
+const donationsRouter = require('./routes/donations')
 
 const app = express()
 
@@ -31,6 +32,8 @@ app.get('/test-optional', auth.optional, function(req, res){
   const user = req.user || {};
   res.json({ id: user.id, username: user.username });
 });
+
+app.use('/donations', auth.required, donationsRouter)
 
 app.use('/', indexRouter)
 app.use('/users', usersRouter)

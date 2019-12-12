@@ -9,7 +9,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       donorId: {
-        allowNull: false,
+        allowNull: true,
         foreignKey: true,
         type: Sequelize.INTEGER,
         references: {                 // Add this for foreign key constraints
@@ -62,7 +62,7 @@ module.exports = {
         type: Sequelize.STRING        
       },
       paymentRef:{
-        allowNull:false,
+        allowNull:true,
         type: Sequelize.STRING
       },
       taxDeductible:{

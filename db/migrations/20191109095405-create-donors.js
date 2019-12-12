@@ -10,7 +10,7 @@ module.exports = {
       },
       idNo: {
         allowNull: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       idTypeId:{
           allowNull: false,
@@ -22,17 +22,13 @@ module.exports = {
           },
           onUpdate: 'cascade'
       },
-      salutation: {
+      salutationId: {
         type: Sequelize.STRING,
         allowNull: true
       },
-      firstName: {
+      name: {
         type: Sequelize.STRING,
         allowNull: false
-      },
-      lastName: {
-        type: Sequelize.STRING,
-        allowNull: true
       },
       email: {
         type: Sequelize.STRING,
@@ -43,20 +39,26 @@ module.exports = {
         allowNull: true
       },
       address1: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.STRING
       },
       address2: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.STRING
       },
       postalCode: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.INTEGER
       },
-      preferedContact: {
-        allowNull: false,
-        type: Sequelize.STRING
+      preferredContactId: {
+        allowNull: true,
+        foreignkey: true,
+        type: Sequelize.INTEGER,
+        references: {                 // Add this for foreign key constraints
+          model: 'PreferredContacts',
+          key: 'id'
+        },
+        onUpdate: 'cascade'
       },
       dnc: {
         allowNull: true,

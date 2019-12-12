@@ -2,36 +2,24 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-
-    return queryInterface.bulkInsert('PaymentTypes', 
+    return queryInterface.bulkInsert('PreferredContacts', 
       [
         {
-          description: 'Cash',
+          description: 'phone_number',
           createdAt: Sequelize.literal('NOW()'),
           updatedAt: Sequelize.literal('NOW()')
         },
         {
-          description: 'GIRO',
+          description: 'email_address',
           createdAt: Sequelize.literal('NOW()'),
           updatedAt: Sequelize.literal('NOW()')
         },
         {
-          description: 'Credit Card',
-          createdAt: Sequelize.literal('NOW()'),
-          updatedAt: Sequelize.literal('NOW()')
-        },
-        {
-          description: 'Cheque',
-          createdAt: Sequelize.literal('NOW()'),
-          updatedAt: Sequelize.literal('NOW()')
-        },
-        {
-          description: 'Others',
+          description: 'mail_address',
           createdAt: Sequelize.literal('NOW()'),
           updatedAt: Sequelize.literal('NOW()')
         }
       ]);
-
   },
 
   down: (queryInterface, Sequelize) => {
