@@ -1,10 +1,14 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const PaymentType = sequelize.define('PaymentTypes', {
+  const PaymentType = sequelize.define('PaymentType', {
     description: DataTypes.STRING
   }, {});
   PaymentType.associate = function(models) {
     // associations can be defined here
+    PaymentType.hasMany(models.Donation, {
+      foreignKey: 'paymentTypeId',
+      as: 'donations'
+    })
   };
   return PaymentType;
 };

@@ -1,6 +1,9 @@
 'use strict';
+
+// const { Donor } = require("../../src/models");
+
 module.exports = (sequelize, DataTypes) => {
-  const Donation = sequelize.define('Donations', {
+  const Donation = sequelize.define('Donation', {
     donorId: DataTypes.INTEGER,
     donationDate: DataTypes.DATE,
     donationAmount: DataTypes.NUMERIC,
@@ -16,6 +19,25 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Donation.associate = function(models) {
     // associations can be defined here
+    Donation.belongsTo(models.Donor, {
+      foreignKey: 'donorId',
+      as: 'donor'
+    });
+
+    Donation.hasOne(models.Source, {
+      foreignKey: 'sourceId',
+      as: 'source'
+    });
+
+    Donation.hasOne(models.PaymentType, {
+      foreignKey: 'paymentTypeId',
+      as: 'paymentType'
+    });
+
+    Donation.hasOne(models.Intent, {
+      foreignKey: 'intentId',
+      as: 'intent'
+    });
   };
   return Donation;
 };
