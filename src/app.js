@@ -33,7 +33,105 @@ app.get('/test-optional', auth.optional, function(req, res){
   res.json({ id: user.id, username: user.username });
 });
 
-app.use('/donations', auth.required, donationsRouter)
+// hard-coding the JSON object for /donations 
+//app.use('/donations', auth.required, donationsRouter)
+app.get('/test-required', auth.required, 
+  function(res){
+    res.json(
+      {
+        "startDate": "2019-09-23",
+        "endDate": "2019-11-23",
+        "donationAmt": [{
+            "date": "2019-09-23",
+            "amount": "213"
+          },
+          {
+            "date": "2019-09-24",
+            "amount": "345"
+          },
+          {
+            "date": "2019-09-25",
+            "amount": "2343"
+          },
+          {
+            "date": "2019-09-26",
+            "amount": "354"
+          },
+          {
+            "date": "2019-09-27",
+            "amount": "76"
+          },
+          {
+            "date": "2019-09-28",
+            "amount": "6765"
+          },
+          {
+            "date": "2019-09-29",
+            "amount": "445"
+          },
+          {
+            "date": "2019-09-30",
+            "amount": "97"
+          },
+          {
+            "date": "2019-10-01",
+            "amount": "4567"
+          },
+          {
+            "date": "2019-10-02",
+            "amount": "458"
+          },
+          {
+            "date": "2019-10-03",
+            "amount": "89"
+          },
+          {
+            "date": "2019-10-04",
+            "amount": "889"
+          }
+        ],
+        "totalDonationAmt": "12154.00",
+        "totalNoOfDonations": "6328",
+        "NoOfDonationBySource": [{
+            "sourceName": "bi-monthly charity dinner",
+            "noOfDonations": 3238
+          },
+          {
+            "sourceName": "church",
+            "noOfDonations": 832
+          },
+          {
+            "sourceName": "online (Beverity)",
+            "noOfDonations": 290
+          },
+          {
+            "sourceName": "online (REACH)",
+            "noOfDonations": 102
+          },
+          {
+            "sourceName": "others",
+            "noOfDonations": 88
+          }
+        ],
+        "donationAmtByIntent": [{
+            "amount": 4900,
+            "intent": "counselling"
+          },
+          {
+            "amount": 5500,
+            "intent": "family"
+          },
+          {
+            "amount": 3800,
+            "intent": "senior"
+          },
+          {
+            "amount": 4200,
+            "intent": "youth"
+          }
+        ]
+      });
+  });
 
 app.use('/', indexRouter)
 app.use('/users', usersRouter)
