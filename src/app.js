@@ -35,8 +35,8 @@ app.get('/test-optional', auth.optional, function(req, res){
 
 // hard-coding the JSON object for /donations 
 //app.use('/donations', auth.required, donationsRouter)
-app.get('/test-required', auth.required, 
-  function(res){
+app.get('/donations', auth.required, 
+  function(req,res){
     res.json(
       {
         "startDate": "2019-09-23",
