@@ -61,8 +61,9 @@ e.g.
 1. Right click on Windows button and run Powershell(admin) command prompt 
 Run the following commands 
 2.  npm install --global --production windows-build-tools
-3. npm install node-gyp
-4. npm install bcrypt
+3. Restart computer
+4. npm install node-gyp
+5. npm install bcrypt
 
 or
 
