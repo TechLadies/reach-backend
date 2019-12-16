@@ -14,4 +14,15 @@ router.get('/', function (req, res, next) {
   });
 });
 
+router.get('/test', function (req, res, next) {
+  debug('Hello World! dec 2019 here I am ');
+
+  db.User.findAll({
+    attributes: ['firstName', 'email']
+  }).then(users => {
+    res.json(users)
+  });
+});
+
+
 module.exports = router;
