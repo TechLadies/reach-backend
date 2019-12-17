@@ -10,6 +10,7 @@ const auth = require(path.resolve('src/auth/auth'));
 const indexRouter = require('./routes/index')
 const usersRouter = require('./routes/users')
 const donationsRouter = require('./routes/donations')
+const donorsRouter = require('./routes/donors')
 
 const app = express()
 
@@ -135,6 +136,8 @@ app.get('/donations', auth.required,
 
 app.use('/', indexRouter)
 app.use('/users', usersRouter)
+app.use('/donors', donorsRouter)
+
 
 app.get('*', function (_, res) {
   res.status(404).json({ message: '404 not found' });

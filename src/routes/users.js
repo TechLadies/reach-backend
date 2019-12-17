@@ -14,5 +14,13 @@ router.get('/', function (req, res, next) {
   });
 });
 
+router.get('test/', function(req,res,next){
+debug('Hello World! dec 2019 here I am ');
 
-module.exports = router;
+db.User.findAll({
+  attributes: ['lastName', 'email']
+}).then(users => {
+  res.json(users)
+});
+});
+
