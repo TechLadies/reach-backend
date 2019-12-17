@@ -12,6 +12,21 @@ router.get('/', function (req, res, next) {
   }).then(users => {
     res.json(users)
   });
+
+ // db,User,finOne({ where:  {email:'Tan@techladies' }}}
+  
 });
+
+router.get("/:surname", (req, res) => {
+  console.log(req.params.surname)
+  console.log("haha")
+  db.User.findOne({
+    where: {'lastName': req.params.surname},
+    attributes: ['firstName','lastName', 'email']
+  }).then(users =>{
+    res.json(users)
+  
+  });
+} )
 
 module.exports = router;
