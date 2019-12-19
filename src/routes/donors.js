@@ -12,7 +12,18 @@ router.get("/", function(req, res, next) {
   });
 });
 
-
-
+router.put('/updatedonors/:id', (req, res) => {
+  console.log("hello world")
+  db.Donor.update(
+    {
+      email: req.body.email
+    },
+    {
+      where: {
+        id: req.params.id
+      }
+    }
+  ).then(result => res.json(result))
+  });
 
 module.exports = router;
