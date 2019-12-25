@@ -11,6 +11,7 @@ const indexRouter = require('./routes/index')
 const usersRouter = require('./routes/users')
 const donationsRouter = require('./routes/donations')
 const donorsRouter = require('./routes/donors')
+const salutationsRouter = require('./routes/salutations')
 
 const app = express()
 
@@ -137,8 +138,8 @@ app.get('/donations', auth.required,
 app.use('/', indexRouter)
 app.use('/users', usersRouter)
 app.use('/donors', donorsRouter)
-app.use('/donations', donationsRouter) 
-
+app.use('/donations', donationsRouter)
+app.use('/salutations', salutationsRouter)
 
 app.get('*', function (_, res) {
   res.status(404).json({ message: '404 not found' });
