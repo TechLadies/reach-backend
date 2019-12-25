@@ -4,18 +4,27 @@ const db = require("../models/index");
 
 //donor list table
 router.get("/", function(req, res, next) {
-  db.Donor.findAll({
-    attributes: ["id", "firstName", "lastName", "contactNo", "email", "dnc"],
-    include: [
-      {
-        model: db.Donation,
-        as: "donations",
-        attributes: ['donationAmount']
-      }
-    ]
-  }).then(donor => {
-    res.json(donor);
-  });
+  //Hi all, remind me to explain what try and catch is
+  try {
+    db.Donor.findAll({
+      attributes: ['idNo','name', /* what are these? -> "id", "firstName", "lastName",*/ "contactNo", "email", "dnc", 'postalCode'],
+      include: [
+        {
+          model: db.Donation,
+          as: "donations",
+          attributes: ['donationAmount']
+        },
+        {
+          model: db.Salutation,
+          nested: true
+        }
+      ]
+    }).then(donor => {
+      res.json(donor);
+    });
+  } catch (err) {
+    res.status(500).json(err)
+  }
 });
 
 router.get("/sums", function(req, res, next) {
