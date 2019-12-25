@@ -34,8 +34,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Donor.hasOne(models.Salutation, {
-      foreignKey: 'salutationId',
-      as: 'salutation'
+      foreignKey: 'id'
     });
 
     Donor.hasOne(models.IdType, {
