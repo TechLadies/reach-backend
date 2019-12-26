@@ -22,20 +22,19 @@ module.exports = (sequelize, DataTypes) => {
 
   Donor.associate = function(models) {
     // associations can be defined here
-    Donor.hasMany(models.Donation, { 
+    Donor.hasMany(models.Donation, {
       foreignKey: 'donorId',
       allowNull: true,
       as: 'donations'
     });
 
     Donor.hasOne(models.PreferredContact, {
-      foreignKey: 'preferredContactId',
+      foreignKey: 'preferedContactId',
       as: 'preferredContact'
     });
 
     Donor.hasOne(models.Salutation, {
-      foreignKey: 'salutationId',
-      as: 'salutation'
+      foreignKey: 'id'
     });
 
     Donor.hasOne(models.IdType, {
