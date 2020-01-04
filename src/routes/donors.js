@@ -1,29 +1,37 @@
 const express = require("express");
 const router = express.Router();
+const Sequelize = require("sequelize");
 const db = require("../models/index");
 
 //donor list table
 router.get("/", function(req, res, next) {
   //Hi all, remind me to explain what try and catch is
+
+  var donor = db.Donor;
+
   try {
-    db.Donor.findAll({
-      attributes: ['idNo','name', /* what are these? -> "id", "firstName", "lastName",*/ "contactNo", "email", "dnc", 'postalCode'],
+    donor.findAll({
+      attributes: [
+        "idNo",
+        "name",
+        "contactNo",
+        "email",
+        "dnc",
+        [Sequelize.fn('SUM', Sequelize.col('donationAmount')), 'totalAmountDonated']
+      ],
       include: [
         {
           model: db.Donation,
           as: "donations",
-          attributes: ['donationAmount']
-        },
-        {
-          model: db.Salutation,
-          nested: true
+          attributes: ["donationAmount"]
         }
-      ]
-    }).then(donor => {
-      res.json(donor);
+      ],
+      group: ['donor.id']
+    }).then(donorObj => {
+      res.json(donorObj);
     });
   } catch (err) {
-    res.status(500).json(err)
+    res.status(500).json(err);
   }
 });
 
