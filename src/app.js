@@ -35,9 +35,8 @@ app.get('/test-optional', auth.optional, function(req, res){
   res.json({ id: user.id, username: user.username });
 });
 
-// hard-coding the JSON object for /donations 
-//app.use('/donations', auth.required, donationsRouter)
-app.get('/donations', auth.required, 
+// hard-coding the JSON object for /dashboard
+app.post('/api/dashboard', auth.required,
   function(req,res){
     res.json(
       {
