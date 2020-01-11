@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require("../models/index");
 
 //donor list table
-router.get("/", function(req, res, next) {
+router.post("/", function(req, res, next) {
   //Hi all, remind me to explain what try and catch is
   try {
     db.Donor.findAll({
