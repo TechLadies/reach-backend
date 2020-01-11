@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     address1: DataTypes.STRING,
     address2: DataTypes.STRING,
     postalCode: DataTypes.INTEGER,
-    preferedContactId: DataTypes.INTEGER,
+    preferredContactId: DataTypes.INTEGER,
     dnc: DataTypes.BOOLEAN,
     dateofBirth: DataTypes.DATE,
     remarks: DataTypes.STRING,
@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Donor.hasOne(models.PreferredContact, {
-      foreignKey: 'preferedContactId',
+      foreignKey: 'preferredContactId',
       as: 'preferredContact'
     });
 
