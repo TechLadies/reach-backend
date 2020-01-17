@@ -26,7 +26,7 @@ router.get("/", function(req, res, next) {
           attributes: ["donationAmount"]
         }
       ],
-      group: ['donor.id']
+      group: ['Donor.id', 'donations.id']
     }).then(donorObj => {
       res.json(donorObj);
     });
