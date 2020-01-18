@@ -48,7 +48,7 @@ router.post('/upload', (req, res) => {
                 return _upsertDonorInsertDonation({
                   donor,
                   donation,
-                  transation: t,
+                  transaction: t,
                   previousResult
                 })
               }
