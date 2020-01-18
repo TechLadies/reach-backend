@@ -23,10 +23,10 @@ router.get("/", function(req, res, next) {
         {
           model: db.Donation,
           as: "donations",
-          attributes: ["donationAmount"]
+          attributes: []
         }
       ],
-      group: ['Donor.id', 'donations.id']
+      group: ['Donor.id']
     }).then(donorObj => {
       res.json(donorObj);
     });
