@@ -47,4 +47,25 @@ router.put("/updatedonors/:id", (req, res) => {
   ).then(result => res.json(result));
 });
 
+// TO DO: fully implement the search for donor
+router.get("/search", function(req, res, next) {
+  try {
+    db.Donor.findOne({
+      name : req.params.name,
+      attributes: [
+        "idNo",
+        "name",
+        "contactNo",
+        "email",
+        "dnc"
+      ]
+    }
+  ).then(donorObj => {
+      res.json(donorObj);
+    });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
 module.exports = router;
