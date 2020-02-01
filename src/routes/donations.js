@@ -62,11 +62,10 @@ router.post('/upload', (req, res) => {
         }, Promise.resolve([]))
       })
       .then(results => {
-        console.log(results)
-        const deduped = _groupDonors(results)
-        res.status(200).send(deduped)
-        /*  res.status(200).send(results) */
-        return results
+        const deduped = () => {
+          return [_groupDonors(results), summary(results)]
+        }
+        res.status(200).send(deduped())
       })
       .catch(e => {
         console.log(e)
@@ -216,19 +215,65 @@ function _groupDonors(results) {
       return sum + donation.donationAmount
     }, 0)
     const name = _.last(details).name
-    
+
     return {
-      id, 
+      id,
       name,
-      totalAmount: sum ,
+      totalAmount: sum,
       donationCount
     }
-    
   })
+
   return groupedArr
 }
 
+function summary(results) {
+  const donations = _.map(results, el => el.donationAmount)
+  const totalAmt = donations.reduce((sum, donation) => {
+    return sum + donation
+  }, 0)
+  const totalCount = results.length
+  const dateFormatter = _.map(results, el => Date.parse(el.donationDate))
+  const maxDate = dateStringOf(new Date(Math.max.apply(null, dateFormatter)))
+  const minDate = dateStringOf(new Date(Math.min.apply(null, dateFormatter)))
+  const period = () => {
+    if (minDate.year === maxDate.year) {
+      if (minDate.month === maxDate.month) {
+        return `${minDate.day} - ${maxDate.day} ${maxDate.month} ${maxDate.year}`
+      } else {
+        return `${minDate.dateMonth} - ${maxDate.dateMonth} ${maxDate.year}`
+      }
+    } else {
+      return `${minDate.fullDate} - ${maxDate.fullDate}`
+    }
+  }
 
+  return { totalCount, totalAmt, period: period() }
+}
+
+function dateStringOf(date) {
+  const day = date.getDate()
+  const year = date.getFullYear()
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec'
+  ]
+  const month = months[date.getMonth()]
+  const fullDate = day + ' ' + month + ' ' + year
+  const dateMonth = day + ' ' + month
+
+  return { day, month, year, fullDate, dateMonth }
+}
 
 function _handleError(res, e) {
   switch (e.constructor) {
