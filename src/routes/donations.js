@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const db = require('../models/index')
 const uniqBy = require('lodash.uniqby')
+var _ = require('lodash')
 
 /* GET Donations records. */
 router.get('/', function(req, res, next) {
@@ -61,8 +62,11 @@ router.post('/upload', (req, res) => {
         }, Promise.resolve([]))
       })
       .then(results => {
-        const deduped = _dedupeDonors(results)
+        console.log(results)
+        const deduped = _groupDonors(results)
         res.status(200).send(deduped)
+        /*  res.status(200).send(results) */
+        return results
       })
       .catch(e => {
         console.log(e)
@@ -171,13 +175,19 @@ function _upsertDonorInsertDonation({
     returning: true
   }).then(([donor, created]) => {
     return new Promise(res => {
-      return db.Donation.create({
-        ...donation,
-        donorId: donor.id
-      }, {
-        transaction
-      }).then(() =>
-        res([...previousResult, { ...donor.toJSON(), __isNew: created }])
+      return db.Donation.create(
+        {
+          ...donation,
+          donorId: donor.id
+        },
+        {
+          transaction
+        }
+      ).then(() =>
+        res([
+          ...previousResult,
+          { ...donor.toJSON(), __isNew: created, ...donation }
+        ])
       )
     })
   })
@@ -197,27 +207,28 @@ function _validateIncomingDonation(incoming) {
  * created and then updated in the same upload,
  * they are marked as a *new* donor.
  */
-function _dedupeDonors(results) {
-  return uniqBy(results, donor => donor.id && donor.__isNew).reduce(
-    (donors, donor) => {
-      const idx = donors.findIndex(d => d.id === donor.id)
-      if (idx < 0) {
-        // have not encountered this donor yet
-        donors.push(donor)
-      } else if (donors[idx].__isNew && !donor.__isNew) {
-        // existing is new, incoming is updated:
-        // take updated details and mark as new
-        donors[idx] = donor
-        donors[idx].__isNew = true
-      } else {
-        // we should not reach here
-        donors[idx] = donor
-      }
-      return donors
-    },
-    []
-  )
+
+function _groupDonors(results) {
+  const groupById = _.groupBy(results, 'id')
+  const groupedArr = _.map(groupById, (details, id) => {
+    const donationCount = details.length
+    const sum = details.reduce((sum, donation) => {
+      return sum + donation.donationAmount
+    }, 0)
+    const name = _.last(details).name
+    
+    return {
+      id, 
+      name,
+      totalAmount: sum ,
+      donationCount
+    }
+    
+  })
+  return groupedArr
 }
+
+
 
 function _handleError(res, e) {
   switch (e.constructor) {
