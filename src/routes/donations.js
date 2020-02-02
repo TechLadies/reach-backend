@@ -219,12 +219,16 @@ function _groupDonors(results) {
       return sum + donation.donationAmount
     }, 0)
     const name = _.last(details).name
+    const idNo = _.last(details).idNo
+    const __isNew = _.first(details).__isNew
 
     return {
       id,
+      idNo,
       name,
       totalAmount: sum,
-      donationCount
+      donationCount,
+      __isNew
     }
   })
 
