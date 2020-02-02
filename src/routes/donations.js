@@ -136,9 +136,13 @@ function _simpleCache(Model) {
   }
 }
 
+const transformDate = (date) => {
+  return ((date.split('/')).reverse()).join('-')
+}
+
 function _buildDonation(csvDonation) {
   return {
-    donationDate: csvDonation['Date of Donation'],
+    donationDate: transformDate(csvDonation['Date of Donation']),
     donationAmount: csvDonation['Amount'],
     donationType: csvDonation['Type of Donation'],
     remarks: csvDonation['Remarks'],
