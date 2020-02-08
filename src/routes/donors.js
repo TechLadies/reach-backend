@@ -119,8 +119,9 @@ router.post("/details", function(req, res, next) {
   // GET selected donor of idNo.
   var ic_number =  req.body.donorIdNo;
 
-  db.Donor.findAll({
+  db.Donor.findOne({
     // attributes: [
+    //   "id",
     //   "idNo",
     //   "name",
     //   "contactNo",
@@ -134,12 +135,13 @@ router.post("/details", function(req, res, next) {
     include: [
       {
         model: db.Donation,
-        as: "donations",
-        attributes: []
-      }
-    ],
-    group: ["Donor.id"]
+        as: "donations"
+      },
+    ]
   }).then( donorResponse => {
+    if(donorResponse == null){
+      donorResponse = { value: "No donor found"};
+    }
     res.status( 200 ).json(donorResponse);
   })
   .catch( error => {
