@@ -145,12 +145,17 @@ router.post("/details", function(req, res, next) {
   .catch( error => {
     res.status( 400 ).send( error )
   });
+});
 
 // TO DO: fully implement the search for donor
-router.get("/search", function(req, res, next) {
+router.get("/search", function(req, res) {
   try {
-    db.Donor.findOne({
-      name : req.params.name,
+    db.Donor.findAll({
+      where: {
+        name : {
+          [db.Sequelize.Op.like]: `%${req.query.name}%`
+        },
+      },
       attributes: [
         "idNo",
         "name",
