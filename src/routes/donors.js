@@ -79,17 +79,25 @@ router.post("/details", function(req, res, next) {
     res.status( 400 ).send( error )
   });
 
-        //,
-        
-//       })
-//       .then(donorObj => {
-//         res.json({
-//           data: donorObj
-//         });
-//       });
-//   } catch (err) {
-//     res.status(500).json(err);
-//   }
+// TO DO: fully implement the search for donor
+router.get("/search", function(req, res, next) {
+  try {
+    db.Donor.findOne({
+      name : req.params.name,
+      attributes: [
+        "idNo",
+        "name",
+        "contactNo",
+        "email",
+        "dnc"
+      ]
+    }
+  ).then(donorObj => {
+      res.json(donorObj);
+    });
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
 module.exports = router;
