@@ -5,32 +5,41 @@ const pagination = require('../middlewares/pagination')
 const db = require('../models/index');
 
 router.get('/', function (req, res, next) {
-  
-    db.Upload.findAll().then(uploads => {
+
+  db.Upload.findAll().then(uploads => {
     res.json(uploads)
   });
 
 });
 
-// /latest
 router.get('/latest', function (req, res, next) {
-  
-        db.Upload.findAll({
-            order:[
-              //
-              ['uploadDate', 'DESC'],
-            ]
-        }).then(uploads => {
+
+  db.Upload.findAll({
+    order: [
+      
+      ['uploadDate', 'DESC'],
+    ]
+  }).then(uploads => {
     res.json(uploads[0])
-    //      db.Upload.findOne({
-    //         order:[
-    //           //
-    //           [db.sequelize.fn('max', db.sequelize.col('uploadDate')), 'DESC'],
-    //         ]
-    //     }).then(uploads => {
-    // res.json(uploads)
+
   });
-        
+
+});
+
+router.post('/', (req, res) => {
+ 
+  const uploadDate = req.body.uploadDate;
+  const firstDate = req.body.firstDate;
+  const lastDate = req.body.lastDate;
+  db.Upload.create({
+    uploadDate: uploadDate,
+    firstDate: firstDate,
+    lastDate: lastDate
+  })
+    .then(newUpload => {
+      console.log(`New ${newUpload.uploadDate} ${newUpload.firstDate} ${newUpload.lastDate},  has been created.`);
+      res.json(newUpload);
+    })
 });
 
 module.exports = router;

@@ -18,6 +18,13 @@ module.exports = {
         createdAt: Sequelize.literal('NOW()'),
         updatedAt: Sequelize.literal('NOW()')
       },
+      {
+        uploadDate: "2019-10-30",
+        firstDate: "2019-01-01",
+        lastDate: "2019-01-01",
+        createdAt: Sequelize.literal('NOW()'),
+        updatedAt: Sequelize.literal('NOW()')
+      },
     ]);
   },
 
