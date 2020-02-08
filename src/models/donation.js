@@ -25,13 +25,11 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Donation.hasOne(models.Source, {
-      foreignKey: 'sourceId',
-      as: 'source'
+      foreignKey: 'id'
     });
 
     Donation.hasOne(models.PaymentType, {
-      foreignKey: 'paymentTypeId',
-      as: 'paymentType'
+      foreignKey: 'id'
     });
 
     Donation.hasOne(models.Intent, {

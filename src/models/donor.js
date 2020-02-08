@@ -1,10 +1,11 @@
-'use strict';
+'use strict'
 
 // const { Donation } = require("../../src/models");
 
 module.exports = (sequelize, DataTypes) => {
   const Donor = sequelize.define('Donor', {
-    idNo: DataTypes.INTEGER,
+    id: { type: DataTypes.INTEGER, primaryKey: true },
+    idNo: { type: DataTypes.STRING, unique: true },
     idTypeId: DataTypes.INTEGER,
     salutationId: DataTypes.STRING,
     name: DataTypes.STRING,
@@ -18,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     dateofBirth: DataTypes.DATE,
     remarks: DataTypes.STRING,
     contactPersonId: DataTypes.INTEGER
-  }, {});
+  },{})
 
   Donor.associate = function(models) {
     // associations can be defined here
@@ -26,28 +27,26 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'donorId',
       allowNull: true,
       as: 'donations'
-    });
+    })
 
     Donor.hasOne(models.PreferredContact, {
       foreignKey: 'preferredContactId',
       as: 'preferredContact'
-    });
+    })
 
     Donor.hasOne(models.Salutation, {
       foreignKey: 'id'
-    });
+    })
 
     Donor.hasOne(models.IdType, {
-      foreignKey: 'idTypeId',
-      as: 'idType'
-    });
+      foreignKey: 'id'
+    })
 
     Donor.hasOne(models.ContactPerson, {
       foreignKey: 'contactPersonId',
       as: 'contactPerson'
-    });
+    })
+  }
 
-  };
-
-  return Donor;
-};
+  return Donor
+}
