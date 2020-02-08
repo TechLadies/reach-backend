@@ -30,8 +30,7 @@ module.exports = (sequelize, DataTypes) => {
     })
 
     Donor.hasOne(models.PreferredContact, {
-      foreignKey: 'preferredContactId',
-      as: 'preferredContact'
+      foreignKey: 'id'
     })
 
     Donor.hasOne(models.Salutation, {

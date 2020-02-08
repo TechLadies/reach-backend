@@ -101,17 +101,48 @@ router.get("/sums", function(req, res, next) {
 });
 
 router.put("/updatedonors/:id", (req, res) => {
-  console.log("hello world");
-  db.Donor.update(
-    {
-      email: req.body.email
-    },
-    {
-      where: {
-        id: req.params.id
-      }
+  const { id: donorId } = req.params
+  const { remarks, preferredContact } = req.body
+  if (!remarks && !preferredContact) {
+    return res.sendStatus(204).json({
+      message: "You have not sent any parameters for updating"
+    })
+  }
+  try {
+    // We may or may not need to do this findOne, depending on whether the preferred contact is being updated.
+    let prom = Promise.resolve({})
+    if (preferredContact) {
+      prom = db.PreferredContact.findOne({
+        where: {
+          description: preferredContact
+        }
+      })
     }
-  ).then(result => res.json(result));
+    prom
+    .then((preferredContact) => {
+      let updateParams = {}
+      if (remarks) {
+        updateParams.remarks = remarks
+      }
+      if (preferredContact) {
+        updateParams.preferredContactId = preferredContact.id
+      }
+      return db.Donor.update(
+        updateParams,
+        {
+          where: { id: donorId },
+          returning: true
+        },
+      )
+    })
+    .then(([, result]) => {
+      res.json(result)
+    });
+  } catch {
+    res.sendStatus(500).json({
+      message: 'Server Error'
+    })
+  }
 });
 
 //donor details
@@ -145,6 +176,7 @@ router.post("/details", function(req, res, next) {
   .catch( error => {
     res.status( 400 ).send( error )
   });
+});
 
 // TO DO: fully implement the search for donor
 router.get("/search", function(req, res, next) {
