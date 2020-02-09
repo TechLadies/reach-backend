@@ -63,7 +63,10 @@ router.post('/upload', (req, res) => {
       })
       .then(results => {
         const deduped = () => {
-          return [_groupDonors(results), summary(results)]
+          return {
+            data: _groupDonors(results),
+            summary: summary(results)
+          }
         }
         res.status(200).send(deduped())
       })
