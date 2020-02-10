@@ -1,8 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const db = require('../models/index')
-const uniqBy = require('lodash.uniqby')
-var _ = require('lodash')
+const _ = require('lodash')
+const Sequelize = require("sequelize");
 
 /* GET Donations records. */
 router.get('/', function(req, res, next) {
@@ -10,6 +10,71 @@ router.get('/', function(req, res, next) {
   console.log(req.query)
   res.status(200).json({})
 })
+
+router.post("/all", function(req, res, next) {
+  // GET Donations records.
+  db.Donation.findAll({
+    attributes: ['donorId','donationDate', "donationAmount", "donationType", "paymentRef"],
+  }).then( donationsResponse => {
+    res.status( 200 ).json( donationsResponse )
+  })
+  .catch( error => {
+    res.status( 400 ).send( error )
+  })
+});
+
+//api for the dashboard
+router.post("/dashboard", function(req, res, next) {
+  // JSON object
+  var response = {};
+  var tmp = {};
+  // GET selected Donations records.
+  var start_date =  req.body.startDate;
+  var end_date =  req.body.endDate;
+  var startDate = new Date(start_date);
+  var endDate = new Date(end_date);
+  response["startDate"] = startDate;
+  response['endDate'] = endDate;
+
+  db.Donation.findAll({
+    attributes: ['donationDate', "donationAmount"],
+    where: {
+      donationDate: {
+        [Sequelize.Op.between]: [startDate, endDate]
+      }
+    }
+  }).then( donationsResponse => {
+    response['donationAmt'] = donationsResponse;
+  })
+  .catch( error => {
+    res.status( 400 ).send( error )
+  })
+
+  db.Donation.count("donationAmount").then(count => {
+    response['totalNoOfDonations'] = count;
+  });
+
+  db.Donation.sum("donationAmount").then(sum => {
+    response['totalDonationAmt'] = sum;
+  });
+
+  db.Donation.findAll({
+    attributes: [
+      'sourceId',
+      [Sequelize.fn('SUM', Sequelize.col('donationAmount')), 'totalAmountDonated']
+    ],
+    where: {
+      donationDate: {
+        [Sequelize.Op.between]: [startDate, endDate]
+      }
+    },
+    //groupby
+    group: ['sourceId']
+  }).then( NoOfDonationBySourceResponse => {
+    response['NoOfDonationBySource'] = NoOfDonationBySourceResponse;
+    res.status( 200 ).json(response);
+  });
+});
 
 router.post('/upload', (req, res) => {
   return db.sequelize.transaction(t => {

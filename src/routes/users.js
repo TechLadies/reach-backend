@@ -29,7 +29,7 @@ router.get("/:surname", (req, res) => {
   });
 } )
 
-module.exports = router;
+
 router.get('test/', function(req,res,next){
 debug('Hello World! dec 2019 here I am ');
 
@@ -40,3 +40,4 @@ db.User.findAll({
 });
 });
 
+module.exports = router;
