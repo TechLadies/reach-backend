@@ -145,6 +145,7 @@ router.post("/details", function(req, res, next) {
   .catch( error => {
     res.status( 400 ).send( error )
   });
+});
 
 // TO DO: fully implement the search for donor
 router.get("/search", function(req, res, next) {
