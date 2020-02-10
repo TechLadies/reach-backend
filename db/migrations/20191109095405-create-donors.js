@@ -9,6 +9,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       idNo: {
+        unique: true,
         allowNull: true,
         type: Sequelize.STRING
       },
