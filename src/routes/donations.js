@@ -61,13 +61,15 @@ router.post("/dashboard", function(req, res, next) {
   db.Donation.findAll({
     attributes: [
       'sourceId',
-      [Sequelize.fn('SUM', Sequelize.col('donationAmount')), 'totalAmountDonated']
+      [Sequelize.fn('SUM', Sequelize.col('donationAmount')), 'totalAmountDonated'],
     ],
     where: {
       donationDate: {
         [Sequelize.Op.between]: [startDate, endDate]
       }
     },
+    order: [[Sequelize.fn('SUM', Sequelize.col('donationAmount')), 'DESC']],
+    limit: 5,
     //groupby
     group: ['sourceId']
   }).then( NoOfDonationBySourceResponse => {
