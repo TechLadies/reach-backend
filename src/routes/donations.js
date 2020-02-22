@@ -59,6 +59,7 @@ router.post("/dashboard", function(req, res, next) {
   });
 
   db.Donation.findAll({
+    include: [{ model: db.Source, as: 'Source', attributes:['description']}],
     attributes: [
       'sourceId',
       [Sequelize.fn('SUM', Sequelize.col('donationAmount')), 'totalAmountDonated'],
@@ -71,7 +72,7 @@ router.post("/dashboard", function(req, res, next) {
     order: [[Sequelize.fn('SUM', Sequelize.col('donationAmount')), 'DESC']],
     limit: 5,
     //groupby
-    group: ['sourceId']
+    group: ['sourceId', 'Source.id']
   }).then( NoOfDonationBySourceResponse => {
     response['NoOfDonationBySource'] = NoOfDonationBySourceResponse;
     res.status( 200 ).json(response);
