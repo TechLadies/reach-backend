@@ -85,21 +85,21 @@ router.post('/upload', (req, res) => {
           _validateIncomingDonation(donationWithDonor)
           // Doing this because they're independent queries and I want to blast through them as fast as possible with a Promise.all
           const foreignQueries = []
-          foreignQueries[0] = caches.salutationsCache.findOrCreate(
-            donationWithDonor.Salutation
+          foreignQueries[0] = _donationWithDonor => caches.salutationsCache.findOrCreate(
+            _donationWithDonor.Salutation
           )
-          foreignQueries[1] = caches.idTypeCache.findOrCreate(
-            donationWithDonor['ID Type']
+          foreignQueries[1] = _donationWithDonor => caches.idTypeCache.findOrCreate(
+            _donationWithDonor['ID Type']
           )
-          foreignQueries[2] = caches.sourceCache.findOrCreate(
-            donationWithDonor.Project
+          foreignQueries[2] = _donationWithDonor => caches.sourceCache.findOrCreate(
+            _donationWithDonor.Project
           )
-          foreignQueries[3] = caches.paymentTypeCache.findOrCreate(
-            donationWithDonor['Type of Payment']
+          foreignQueries[3] = _donationWithDonor => caches.paymentTypeCache.findOrCreate(
+            _donationWithDonor['Type of Payment']
           )
 
           return previousResult =>
-            Promise.all(foreignQueries).then(
+            Promise.all(foreignQueries.map(fq => fq(donationWithDonor))).then(
               ([salutationId, idTypeId, sourceId, paymentTypeId]) => {
                 const donation = {
                   ..._buildDonation(donationWithDonor),
