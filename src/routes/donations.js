@@ -61,7 +61,7 @@ router.post("/dashboard", function(req, res, next) {
 
   db.Donation.findAll({
     attributes: [
-      [Sequelize.fn('UPPER', Sequelize.col('Source.description')), 'sourceDescription'],
+      [Sequelize.fn('', Sequelize.col('Source.description')), 'sourceDescription'],
       [Sequelize.fn('SUM', Sequelize.col('donationAmount')), 'totalAmountDonated']
     ],
     where: {
@@ -75,10 +75,10 @@ router.post("/dashboard", function(req, res, next) {
     include: [
       {
         model: db.Source,
-        attributes: ['id', 'description']
+        attributes: []
       }
     ],
-    group: ['Donation.id', 'Source.description', 'Source.id']
+    group: ['Source.description', 'Source.id']
   }).then( NoOfDonationBySourceResponse => {
     response['NoOfDonationBySource'] = NoOfDonationBySourceResponse;
     res.status( 200 ).json(response);
