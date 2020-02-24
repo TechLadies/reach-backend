@@ -33,6 +33,7 @@ router.post("/dashboard", function(req, res, next) {
   var end_date =  req.body.endDate;
   var startDate = new Date(start_date);
   var endDate = new Date(end_date);
+  var source = db.Source;
   response["startDate"] = startDate;
   response['endDate'] = endDate;
 
@@ -41,7 +42,7 @@ router.post("/dashboard", function(req, res, next) {
     where: {
       donationDate: {
         [Sequelize.Op.between]: [startDate, endDate]
-      }
+      },
     }
   }).then( donationsResponse => {
     response['donationAmt'] = donationsResponse;
@@ -59,10 +60,9 @@ router.post("/dashboard", function(req, res, next) {
   });
 
   db.Donation.findAll({
-    include: [{ model: db.Source, as: 'Source', attributes:['description']}],
     attributes: [
-      'sourceId',
-      [Sequelize.fn('SUM', Sequelize.col('donationAmount')), 'totalAmountDonated'],
+      [Sequelize.fn('UPPER', Sequelize.col('Source.description')), 'sourceDescription'],
+      [Sequelize.fn('SUM', Sequelize.col('donationAmount')), 'totalAmountDonated']
     ],
     where: {
       donationDate: {
@@ -72,7 +72,13 @@ router.post("/dashboard", function(req, res, next) {
     order: [[Sequelize.fn('SUM', Sequelize.col('donationAmount')), 'DESC']],
     limit: 5,
     //groupby
-    group: ['sourceId', 'Source.id']
+    include: [
+      {
+        model: db.Source,
+        attributes: ['id', 'description']
+      }
+    ],
+    group: ['Donation.id', 'Source.description', 'Source.id']
   }).then( NoOfDonationBySourceResponse => {
     response['NoOfDonationBySource'] = NoOfDonationBySourceResponse;
     res.status( 200 ).json(response);
