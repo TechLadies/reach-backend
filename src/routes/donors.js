@@ -118,39 +118,46 @@ router.put("/updatedonors/:id", (req, res) => {
 router.post("/details", function(req, res, next) {
   // GET selected donor of idNo.
   var ic_number =  req.body.donorIdNo;
-  
-  db.Donor.findAll({
-    attributes: [
-      "idNo",
-      "name",
-      "contactNo",
-      "email",
-      "dnc",
-      [Sequelize.fn("SUM", Sequelize.col("donationAmount")),"totalAmountDonated"]
-    ],
+
+  db.Donor.findOne({
+    // attributes: [
+    //   "id",
+    //   "idNo",
+    //   "name",
+    //   "contactNo",
+    //   "email",
+    //   "dnc",
+    //   [Sequelize.fn("SUM", Sequelize.col("donationAmount")),"totalAmountDonated"]
+    // ],
     where: {
       idNo: ic_number
     },
     include: [
       {
         model: db.Donation,
-        as: "donations",
-        attributes: []
-      }
-    ],
-    group: ["Donor.id"]
+        as: "donations"
+      },
+    ]
   }).then( donorResponse => {
+    if(donorResponse == null){
+      donorResponse = { value: "No donor found"};
+    }
     res.status( 200 ).json(donorResponse);
   })
   .catch( error => {
     res.status( 400 ).send( error )
   });
+});
 
 // TO DO: fully implement the search for donor
-router.get("/search", function(req, res, next) {
+router.get("/search", function(req, res) {
   try {
-    db.Donor.findOne({
-      name : req.params.name,
+    db.Donor.findAll({
+      where: {
+        name : {
+          [db.Sequelize.Op.like]: `%${req.query.name}%`
+        },
+      },
       attributes: [
         "idNo",
         "name",
