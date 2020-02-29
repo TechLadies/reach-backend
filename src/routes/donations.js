@@ -44,13 +44,11 @@ router.post('/dashboard', function(req, res, next) {
   response['startDate'] = startDate
   response['endDate'] = endDate
 
-  db.Donation.findAll({
+  const queries = []
+  queries[0] = db.Donation.findAll({
     attributes: [
       'donationDate',
-      [
-        Sequelize.fn('SUM', Sequelize.col('donationAmount')),
-        'donationAmount'
-      ]
+      [Sequelize.fn('SUM', Sequelize.col('donationAmount')), 'donationAmount']
     ],
     group: ['donationDate'],
     order: ['donationDate'],
@@ -60,22 +58,14 @@ router.post('/dashboard', function(req, res, next) {
       }
     }
   })
-    .then(donationsResponse => {
-      response['donationAmt'] = donationsResponse
-    })
-    .catch(error => {
-      res.status(400).send(error)
-    })
 
-  db.Donation.count('donationAmount').then(count => {
+  queries[1] = db.Donation.count('donationAmount').then(count => {
     response['totalNoOfDonations'] = count
   })
 
-  db.Donation.sum('donationAmount').then(sum => {
-    response['totalDonationAmt'] = sum
-  })
+  queries[2] = db.Donation.sum('donationAmount')
 
-  db.Donation.findAll({
+  queries[3] = db.Donation.findAll({
     attributes: [
       [
         Sequelize.fn('', Sequelize.col('Source.description')),
@@ -101,10 +91,21 @@ router.post('/dashboard', function(req, res, next) {
       }
     ],
     group: ['Source.description', 'Source.id']
-  }).then(NoOfDonationBySourceResponse => {
-    response['NoOfDonationBySource'] = NoOfDonationBySourceResponse
-    res.status(200).json(response)
   })
+
+  Promise.all(queries)
+    .then(
+      ([donationAmt, totalNoOfDonations, totalDonationAmt, donationSource]) => {
+        response['donationAmt'] = donationAmt
+        response['totalNoOfDonations'] = totalNoOfDonations
+        response['totalDonationAmt'] = totalDonationAmt
+        response['NoofDonationBySource'] = donationSource
+        res.status(200).json(response)
+      }
+    )
+    .catch(error => {
+      res.status(400).send(error)
+    })
 })
 
 router.post('/upload', (req, res) => {
