@@ -14,11 +14,11 @@ router.get("/", pagination, function(req, res, next) {
   const thisYear = now.getFullYear();
   const thisMonth = now.getMonth();
   const thisDate = now.getDate();
-  // const {
-  //   from = new Date(thisYear, 0, 1).toISOString(),
-  //   to = new Date(thisYear, thisMonth, thisDate).toISOString(),
-  //   page = 1
-  // } = req.query;
+  const {
+    from = new Date(thisYear, 0, 1).toISOString(),
+    to = new Date(thisYear, thisMonth, thisDate).toISOString(),
+    page = 1
+  } = req.query;
 
   //   try {
   //     const donors = await db.Donor.findAll({
@@ -58,18 +58,23 @@ router.get("/", pagination, function(req, res, next) {
           {
             model: db.Donation,
             as: "donations",
-            // where: {
-            //   donationDate: {
-            //     [Sequelize.Op.between]: [new Date(from), new Date(to)
-            // ]
-            //   }
-            // },
+            where: {
+              donationDate: {
+                [Sequelize.Op.between]: [new Date(from), new Date(to)
+            ]
+              }
+            },
             // include: [
             //   {
             //     model: db.Source
             //   }
             // ]
-            attributes: []
+            attributes: [
+              "donationDate",
+              "donationAmount",
+              "sourceId",
+              "taxDeductible"
+            ]
           }
         ],
         group: ["Donor.id"],
@@ -120,15 +125,15 @@ router.post("/details", function(req, res, next) {
   var ic_number =  req.body.donorIdNo;
 
   db.Donor.findOne({
-    // attributes: [
-    //   "id",
-    //   "idNo",
-    //   "name",
-    //   "contactNo",
-    //   "email",
-    //   "dnc",
-    //   [Sequelize.fn("SUM", Sequelize.col("donationAmount")),"totalAmountDonated"]
-    // ],
+    attributes: [
+      "id",
+      "idNo",
+      "name",
+      "contactNo",
+      "email",
+      "dnc",
+      [Sequelize.fn("SUM", Sequelize.col("donationAmount")),"totalAmountDonated"]
+    ],
     where: {
       idNo: ic_number
     },
