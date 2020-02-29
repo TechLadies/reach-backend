@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     paymentRef: DataTypes.STRING,
     taxDeductible: DataTypes.BOOLEAN,
     remarks: DataTypes.STRING,
-    receiptNo: DataTypes.STRING,
+    receiptNo: { type: DataTypes.STRING, unique: true },
     void: DataTypes.BOOLEAN
   }, {});
   Donation.associate = function(models) {
