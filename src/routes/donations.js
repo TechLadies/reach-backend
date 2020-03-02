@@ -58,12 +58,10 @@ router.post('/dashboard', function(req, res, next) {
       }
     }
   })
+  queries[1] = db.Donation.sum('donationAmount')
 
-  queries[1] = db.Donation.count('donationAmount').then(count => {
-    response['totalNoOfDonations'] = count
-  })
+  queries[2] = db.Donation.count('donationAmount')
 
-  queries[2] = db.Donation.sum('donationAmount')
 
   queries[3] = db.Donation.findAll({
     attributes: [
@@ -95,11 +93,11 @@ router.post('/dashboard', function(req, res, next) {
 
   Promise.all(queries)
     .then(
-      ([donationAmt, totalNoOfDonations, totalDonationAmt, donationSource]) => {
-        response['donationAmt'] = donationAmt
-        response['totalNoOfDonations'] = totalNoOfDonations
+      ([donationAmt, totalDonationAmt, totalNoOfDonations, donationSource]) => {
         response['totalDonationAmt'] = totalDonationAmt
-        response['NoofDonationBySource'] = donationSource
+        response['totalNoOfDonations'] = totalNoOfDonations
+        response['donationAmt'] = donationAmt
+        response['NoOfDonationBySource'] = donationSource
         res.status(200).json(response)
       }
     )
