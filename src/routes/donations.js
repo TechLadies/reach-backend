@@ -277,7 +277,7 @@ function _upsertDonorInsertDonation({
     returning: true
   }).then(([donor, created]) => {
     return new Promise(res => {
-      return db.Donation.create(
+      return db.Donation.upsert(
         {
           ...donation,
           donorId: donor.id
