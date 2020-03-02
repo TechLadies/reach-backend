@@ -44,13 +44,11 @@ router.post('/dashboard', function(req, res, next) {
   response['startDate'] = startDate
   response['endDate'] = endDate
 
-  db.Donation.findAll({
+  const queries = []
+  queries[0] = db.Donation.findAll({
     attributes: [
       'donationDate',
-      [
-        Sequelize.fn('SUM', Sequelize.col('donationAmount')),
-        'donationAmount'
-      ]
+      [Sequelize.fn('SUM', Sequelize.col('donationAmount')), 'donationAmount']
     ],
     group: ['donationDate'],
     order: ['donationDate'],
@@ -60,22 +58,12 @@ router.post('/dashboard', function(req, res, next) {
       }
     }
   })
-    .then(donationsResponse => {
-      response['donationAmt'] = donationsResponse
-    })
-    .catch(error => {
-      res.status(400).send(error)
-    })
+  queries[1] = db.Donation.sum('donationAmount')
 
-  db.Donation.count('donationAmount').then(count => {
-    response['totalNoOfDonations'] = count
-  })
+  queries[2] = db.Donation.count('donationAmount')
 
-  db.Donation.sum('donationAmount').then(sum => {
-    response['totalDonationAmt'] = sum
-  })
 
-  db.Donation.findAll({
+  queries[3] = db.Donation.findAll({
     attributes: [
       [
         Sequelize.fn('', Sequelize.col('Source.description')),
@@ -101,10 +89,21 @@ router.post('/dashboard', function(req, res, next) {
       }
     ],
     group: ['Source.description', 'Source.id']
-  }).then(NoOfDonationBySourceResponse => {
-    response['NoOfDonationBySource'] = NoOfDonationBySourceResponse
-    res.status(200).json(response)
   })
+
+  Promise.all(queries)
+    .then(
+      ([donationAmt, totalDonationAmt, totalNoOfDonations, donationSource]) => {
+        response['totalDonationAmt'] = totalDonationAmt
+        response['totalNoOfDonations'] = totalNoOfDonations
+        response['donationAmt'] = donationAmt
+        response['NoOfDonationBySource'] = donationSource
+        res.status(200).json(response)
+      }
+    )
+    .catch(error => {
+      res.status(400).send(error)
+    })
 })
 
 router.post('/upload', (req, res) => {
