@@ -154,7 +154,7 @@ router.post('/details', function(req, res, next) {
       },
       { model: db.PreferredContact, attributes: ['description'] },
       {
-        model: db.ContactPersons,
+        model: db.ContactPerson,
         attributes: ['name']
       }
     ]

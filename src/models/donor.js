@@ -38,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'id'
     })
 
-    Donor.belongsTo(models.ContactPersons, {
+    Donor.belongsTo(models.ContactPerson, {
       foreignKey: 'id'
     })
 

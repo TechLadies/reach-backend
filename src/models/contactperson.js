@@ -1,15 +1,15 @@
 'use strict'
 module.exports = (sequelize, DataTypes) => {
-  const ContactPersons = sequelize.define(
-    'ContactPersons',
+  const ContactPerson = sequelize.define(
+    'ContactPerson',
     { name: DataTypes.STRING },
     { tableName: 'ContactPersons' }
   )
-  ContactPersons.associate = function(models) {
+  ContactPerson.associate = function(models) {
     // associations can be defined here
-    ContactPersons.hasMany(models.Donor, {
+    ContactPerson.hasMany(models.Donor, {
       foreignKey: 'contactPersonId'
     })
   }
-  return ContactPersons
+  return ContactPerson
 }
