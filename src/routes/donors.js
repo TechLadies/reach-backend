@@ -1,19 +1,19 @@
-const express = require("express");
-const router = express.Router();
-const Sequelize = require("sequelize");
-const db = require("../models/index");
-const pagination = require("../middlewares/pagination");
+const express = require('express')
+const router = express.Router()
+const Sequelize = require('sequelize')
+const db = require('../models/index')
+const pagination = require('../middlewares/pagination')
 
 //donor list table
-router.get("/", pagination, function(req, res, next) {
-  let offset = req.customParams.offset;
-  let limit = req.customParams.limit;
+router.get('/', pagination, function(req, res, next) {
+  let offset = req.customParams.offset
+  let limit = req.customParams.limit
 
-  var donor = db.Donor;
-  const now = new Date();
-  const thisYear = now.getFullYear();
-  const thisMonth = now.getMonth();
-  const thisDate = now.getDate();
+  var donor = db.Donor
+  const now = new Date()
+  const thisYear = now.getFullYear()
+  const thisMonth = now.getMonth()
+  const thisDate = now.getDate()
   // const {
   //   from = new Date(thisYear, 0, 1).toISOString(),
   //   to = new Date(thisYear, thisMonth, thisDate).toISOString(),
@@ -44,20 +44,20 @@ router.get("/", pagination, function(req, res, next) {
         offset: offset,
         // where (for advanced filters)
         attributes: [
-          "idNo",
-          "name",
-          "contactNo",
-          "email",
-          "dnc",
+          'idNo',
+          'name',
+          'contactNo',
+          'email',
+          'dnc',
           [
-            Sequelize.fn("SUM", Sequelize.col("donationAmount")),
-            "totalAmountDonated"
+            Sequelize.fn('SUM', Sequelize.col('donationAmount')),
+            'totalAmountDonated'
           ]
         ],
         include: [
           {
             model: db.Donation,
-            as: "donations",
+            as: 'donations',
             // where: {
             //   donationDate: {
             //     [Sequelize.Op.between]: [new Date(from), new Date(to)
@@ -72,7 +72,7 @@ router.get("/", pagination, function(req, res, next) {
             attributes: []
           }
         ],
-        group: ["Donor.id"],
+        group: ['Donor.id'],
         subQuery: false
       })
       .then(donorObj => {
@@ -80,28 +80,28 @@ router.get("/", pagination, function(req, res, next) {
           data: donorObj,
           perPage: limit,
           offset: offset
-        });
-      });
+        })
+      })
   } catch (err) {
-    res.status(500).json(err);
+    res.status(500).json(err)
   }
-});
+})
 
-router.get("/count", function(req, res, next) {
+router.get('/count', function(req, res, next) {
   db.Donor.count().then(count => {
-    console.log(count);
-    res.json(count);
-  });
-});
+    console.log(count)
+    res.json(count)
+  })
+})
 
-router.get("/sums", function(req, res, next) {
-  db.Donation.sum("donationAmount").then(sum => {
-    res.json(sum);
-  });
-});
+router.get('/sums', function(req, res, next) {
+  db.Donation.sum('donationAmount').then(sum => {
+    res.json(sum)
+  })
+})
 
-router.put("/updatedonors/:id", (req, res) => {
-  console.log("hello world");
+router.put('/updatedonors/:id', (req, res) => {
+  console.log('hello world')
   db.Donor.update(
     {
       email: req.body.email
@@ -111,13 +111,13 @@ router.put("/updatedonors/:id", (req, res) => {
         id: req.params.id
       }
     }
-  ).then(result => res.json(result));
-});
+  ).then(result => res.json(result))
+})
 
 //donor details
-router.post("/details", function(req, res, next) {
+router.post('/details', function(req, res, next) {
   // GET selected donor of idNo.
-  var ic_number =  req.body.donorIdNo;
+  var ic_number = req.body.donorIdNo
 
   db.Donor.findOne({
     // attributes: [
@@ -135,43 +135,57 @@ router.post("/details", function(req, res, next) {
     include: [
       {
         model: db.Donation,
-        as: "donations"
+        as: 'donations',
+        include: [
+          {
+            model: db.Source,
+            attributes: ['description']
+          }
+        ]
       },
+      {
+        model: db.IdType,
+        attributes: ['description']
+      },
+      {
+        model: db.Salutation,
+        as: 'salutation',
+        attributes: ['description']
+      },
+      { model: db.PreferredContact, attributes: ['description'] },
+      {
+        model: db.ContactPersons,
+        attributes: ['name']
+      }
     ]
-  }).then( donorResponse => {
-    if(donorResponse == null){
-      donorResponse = { value: "No donor found"};
-    }
-    res.status( 200 ).json(donorResponse);
   })
-  .catch( error => {
-    res.status( 400 ).send( error )
-  });
-});
+    .then(donorResponse => {
+      if (donorResponse == null) {
+        donorResponse = { value: 'No donor found' }
+      }
+      res.status(200).json(donorResponse)
+    })
+    .catch(error => {
+      res.status(400).send(error)
+    })
+})
 
 // TO DO: fully implement the search for donor
-router.get("/search", function(req, res) {
+router.get('/search', function(req, res) {
   try {
     db.Donor.findAll({
       where: {
-        name : {
+        name: {
           [db.Sequelize.Op.like]: `%${req.query.name}%`
-        },
+        }
       },
-      attributes: [
-        "idNo",
-        "name",
-        "contactNo",
-        "email",
-        "dnc"
-      ]
-    }
-  ).then(donorObj => {
-      res.json(donorObj);
-    });
+      attributes: ['idNo', 'name', 'contactNo', 'email', 'dnc']
+    }).then(donorObj => {
+      res.json(donorObj)
+    })
   } catch (err) {
-    res.status(500).json(err);
+    res.status(500).json(err)
   }
-});
+})
 
-module.exports = router;
+module.exports = router

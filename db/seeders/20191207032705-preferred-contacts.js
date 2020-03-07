@@ -1,25 +1,24 @@
-'use strict';
+'use strict'
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.bulkInsert('PreferredContacts', 
-      [
-        {
-          description: 'phone_number',
-          createdAt: Sequelize.literal('NOW()'),
-          updatedAt: Sequelize.literal('NOW()')
-        },
-        {
-          description: 'email_address',
-          createdAt: Sequelize.literal('NOW()'),
-          updatedAt: Sequelize.literal('NOW()')
-        },
-        {
-          description: 'mail_address',
-          createdAt: Sequelize.literal('NOW()'),
-          updatedAt: Sequelize.literal('NOW()')
-        }
-      ]);
+    return queryInterface.bulkInsert('PreferredContacts', [
+      {
+        description: 'phone_number',
+        createdAt: Sequelize.literal('NOW()'),
+        updatedAt: Sequelize.literal('NOW()')
+      },
+      {
+        description: 'email_address',
+        createdAt: Sequelize.literal('NOW()'),
+        updatedAt: Sequelize.literal('NOW()')
+      },
+      {
+        description: 'mail_address',
+        createdAt: Sequelize.literal('NOW()'),
+        updatedAt: Sequelize.literal('NOW()')
+      }
+    ])
   },
 
   down: (queryInterface, Sequelize) => {
@@ -31,4 +30,4 @@ module.exports = {
       return queryInterface.bulkDelete('People', null, {});
     */
   }
-};
+}

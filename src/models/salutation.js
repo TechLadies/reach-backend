@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
     // associations can be defined here
     Salutation.hasMany(models.Donor, {
       foreignKey: 'salutationId',
-      as: 'donors'
+      as: 'salutation'
     })
   };
   return Salutation;
