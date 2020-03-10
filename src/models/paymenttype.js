@@ -6,8 +6,7 @@ module.exports = (sequelize, DataTypes) => {
   PaymentType.associate = function(models) {
     // associations can be defined here
     PaymentType.hasMany(models.Donation, {
-      foreignKey: 'paymentTypeId',
-      as: 'donations'
+      foreignKey: 'paymentTypeId'
     })
   };
   return PaymentType;

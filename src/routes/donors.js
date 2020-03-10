@@ -3,6 +3,7 @@ const router = express.Router()
 const Sequelize = require('sequelize')
 const db = require('../models/index')
 const pagination = require('../middlewares/pagination')
+const _ = require('lodash')
 
 //donor list table
 router.get('/', pagination, function(req, res, next) {
@@ -140,35 +141,99 @@ router.post('/details', function(req, res, next) {
           {
             model: db.Source,
             attributes: ['description']
+          },
+          {
+            model: db.PaymentType,
+            attributes: ['description']
           }
         ]
       },
       {
         model: db.IdType,
-        attributes: ['description']
+        attributes: ['description'],
+        as: 'idType'
       },
       {
         model: db.Salutation,
-        as: 'salutation',
-        attributes: ['description']
+        attributes: ['description'],
+        as: 'salutation'
       },
-      { model: db.PreferredContact, attributes: ['description'] },
+      {
+        model: db.PreferredContact,
+        attributes: ['description'],
+        as: 'preferredContact'
+      },
       {
         model: db.ContactPerson,
-        attributes: ['name']
+        attributes: ['name'],
+        as: 'contactPerson'
       }
     ]
   })
     .then(donorResponse => {
+      const categorizedResponse = () => {
+        return {
+          details: detailsFormat(donorResponse),
+          contact: contactFormat(donorResponse),
+          donations: tableFormat(donorResponse)
+        }
+      }
       if (donorResponse == null) {
         donorResponse = { value: 'No donor found' }
       }
-      res.status(200).json(donorResponse)
+      /* res.status(200).json(categorizedResponse()) */
+         res.status(200).json(donorResponse)
     })
     .catch(error => {
       res.status(400).send(error)
     })
 })
+
+//Donor Details Card response format
+function detailsFormat(donorResponse) {
+  const donationSum = _.sumBy(donorResponse.donations, d => d.donationAmount)
+  const idNo = donorResponse.idNo
+  const idType = donorResponse.idType.description
+  const name = donorResponse.name
+  const dateOfBirth = donorResponse.dateofBirth
+  const donationCount = donorResponse.donations.length
+  const donorRemarks = donorResponse.remarks
+  console.log(donorResponse.donations)
+  return {
+    idNo,
+    idType,
+    name,
+    dateOfBirth,
+    donationCount,
+    donationSum,
+    donorRemarks
+  }
+}
+//Contact details Card response format
+function contactFormat(donorResponse) {
+  const phone = donorResponse.contactNo
+  const email = donorResponse.email
+  const mail = donorResponse.address1 + donorResponse.address2
+  const preferredContact = donorResponse.preferredContact
+
+  return { phone, email, mail, preferredContact }
+}
+
+//Donation table response format
+function tableFormat(donorResponse) {
+  const donationsArr = donorResponse.donations
+  const tableInfo = _.map(donationsArr, info => {
+    return {
+      date: info.donationDate,
+      amount: info.donationAmount,
+      source: info.donationSource,
+      mode: info.paymentType.description,
+      tax: info.taxDeductible.description,
+      remarks: info.remarks
+    }
+  })
+  return tableInfo
+}
 
 // TO DO: fully implement the search for donor
 router.get('/search', function(req, res) {
