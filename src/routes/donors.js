@@ -181,17 +181,18 @@ router.post('/details', function(req, res, next) {
       if (donorResponse == null) {
         donorResponse = { value: 'No donor found' }
       }
-      /* res.status(200).json(categorizedResponse()) */
+     /*  res.status(200).json(categorizedResponse()) */
          res.status(200).json(donorResponse)
     })
     .catch(error => {
       res.status(400).send(error)
+      console.log(error)
     })
 })
 
 //Donor Details Card response format
 function detailsFormat(donorResponse) {
-  const donationSum = _.sumBy(donorResponse.donations, d => d.donationAmount)
+  const donationSum = _.sumBy(donorResponse.donations, d => parseFloat(d.donationAmount))
   const idNo = donorResponse.idNo
   const idType = donorResponse.idType.description
   const name = donorResponse.name
