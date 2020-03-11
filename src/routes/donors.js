@@ -181,8 +181,8 @@ router.post('/details', function(req, res, next) {
       if (donorResponse == null) {
         donorResponse = { value: 'No donor found' }
       }
-     /*  res.status(200).json(categorizedResponse()) */
-         res.status(200).json(donorResponse)
+      res.status(200).json(categorizedResponse())
+        /*  res.status(200).json(donorResponse) */
     })
     .catch(error => {
       res.status(400).send(error)
@@ -228,7 +228,7 @@ function tableFormat(donorResponse) {
       date: info.donationDate,
       amount: info.donationAmount,
       source: info.donationSource,
-      mode: info.paymentType.description,
+      mode: info.PaymentType.description,
       tax: info.taxDeductible.description,
       remarks: info.remarks
     }
