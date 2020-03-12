@@ -199,7 +199,6 @@ function detailsFormat(donorResponse) {
   const dateOfBirth = donorResponse.dateofBirth
   const donationCount = donorResponse.donations.length
   const donorRemarks = donorResponse.remarks
-  console.log(donorResponse.donations)
   return {
     idNo,
     idType,
@@ -214,7 +213,7 @@ function detailsFormat(donorResponse) {
 function contactFormat(donorResponse) {
   const phone = donorResponse.contactNo
   const email = donorResponse.email
-  const mail = donorResponse.address1 + donorResponse.address2
+  const mail = donorResponse.address1 + '' + donorResponse.address2
   const preferredContact = donorResponse.preferredContact
 
   return { phone, email, mail, preferredContact }
@@ -226,7 +225,7 @@ function tableFormat(donorResponse) {
   const tableInfo = _.map(donationsArr, info => {
     return {
       date: info.donationDate,
-      amount: info.donationAmount,
+      amount: parseFloat(info.donationAmount),
       source: info.donationSource,
       mode: info.PaymentType.description,
       tax: info.taxDeductible.description,
