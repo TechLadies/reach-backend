@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
   const Donation = sequelize.define('Donation', {
     donorId: DataTypes.INTEGER,
     donationDate: DataTypes.DATE,
-    donationAmount: DataTypes.NUMERIC,
+    donationAmount: DataTypes.DECIMAL,
     sourceId: DataTypes.INTEGER,
     intentId: DataTypes.INTEGER,
     paymentTypeId: DataTypes.INTEGER,
@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Donation.belongsTo(models.PaymentType, {
-      foreignKey: 'id'
+      foreignKey: 'paymentTypeId'
     });
 
     Donation.belongsTo(models.Intent, {

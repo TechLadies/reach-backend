@@ -29,22 +29,24 @@ module.exports = (sequelize, DataTypes) => {
       as: 'donations'
     })
 
-    Donor.hasOne(models.PreferredContact, {
-      foreignKey: 'preferredContactId',
-      as: 'preferredContact'
+    Donor.belongsTo(models.Salutation, {
+      foreignKey: 'id',
+      as: 'salutation'
     })
 
-    Donor.hasOne(models.Salutation, {
-      foreignKey: 'id'
+    Donor.belongsTo(models.IdType, {
+      foreignKey: 'id',
+      as: 'idType'
     })
 
-    Donor.hasOne(models.IdType, {
-      foreignKey: 'id'
-    })
-
-    Donor.hasOne(models.ContactPerson, {
-      foreignKey: 'contactPersonId',
+    Donor.belongsTo(models.ContactPerson, {
+      foreignKey: 'id',
       as: 'contactPerson'
+    })
+
+    Donor.belongsTo(models.PreferredContact, {
+      foreignKey: 'id',
+      as: 'preferredContact'
     })
   }
 
