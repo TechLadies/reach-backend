@@ -32,10 +32,6 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'paymentTypeId'
     });
 
-    Donation.belongsTo(models.Intent, {
-      foreignKey: 'intentId',
-      as: 'intent'
-    });
   };
   return Donation;
 };

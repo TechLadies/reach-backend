@@ -195,6 +195,7 @@ function detailsFormat(donorResponse) {
   const donationSum = _.sumBy(donorResponse.donations, d => parseFloat(d.donationAmount))
   const idNo = donorResponse.idNo
   const idType = donorResponse.idType.description
+  const salutation = donorResponse.salutation.description
   const name = donorResponse.name
   const dateOfBirth = donorResponse.dateofBirth
   const donationCount = donorResponse.donations.length
@@ -203,6 +204,7 @@ function detailsFormat(donorResponse) {
     idNo,
     idType,
     name,
+    salutation,
     dateOfBirth,
     donationCount,
     donationSum,
