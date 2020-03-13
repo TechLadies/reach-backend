@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
       id: { type: DataTypes.INTEGER, primaryKey: true },
       idNo: { type: DataTypes.STRING, unique: true },
       idTypeId: DataTypes.INTEGER,
-      salutationId: DataTypes.STRING,
+      salutationId: DataTypes.INTEGER,
       name: DataTypes.STRING,
       email: DataTypes.STRING,
       contactNo: DataTypes.STRING,
