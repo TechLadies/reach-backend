@@ -171,18 +171,12 @@ router.post('/details', function(req, res, next) {
     ]
   })
     .then(donorResponse => {
-      const categorizedResponse = () => {
-        return {
-          details: detailsFormat(donorResponse),
-          contact: contactFormat(donorResponse),
-          donations: tableFormat(donorResponse)
-        }
-      }
+  
       if (donorResponse == null) {
         donorResponse = { value: 'No donor found' }
       }
-      res.status(200).json(categorizedResponse())
-        /*  res.status(200).json(donorResponse) */
+      res.status(200).json(categorizedResponse(donorResponse))
+       /* res.status(200).json(donorResponse) */
     })
     .catch(error => {
       res.status(400).send(error)
@@ -190,12 +184,20 @@ router.post('/details', function(req, res, next) {
     })
 })
 
+const categorizedResponse = (donorResponse) => {
+  return {
+    details: detailsFormat(donorResponse),
+    contact: contactFormat(donorResponse),
+    donations: tableFormat(donorResponse)
+  }
+}
+
 //Donor Details Card response format
 function detailsFormat(donorResponse) {
   const donationSum = _.sumBy(donorResponse.donations, d => parseFloat(d.donationAmount))
   const idNo = donorResponse.idNo
-  const idType = donorResponse.idType.description
-  const salutation = donorResponse.salutation.description
+  const idType = donorResponse.idType && donorResponse.idType.description
+  const salutation = donorResponse.salutation && donorResponse.salutation.description
   const name = donorResponse.name
   const dateOfBirth = donorResponse.dateofBirth
   const donationCount = donorResponse.donations.length
@@ -216,9 +218,10 @@ function contactFormat(donorResponse) {
   const phone = donorResponse.contactNo
   const email = donorResponse.email
   const mail = donorResponse.address1 + '' + donorResponse.address2
-  const preferredContact = donorResponse.preferredContact
+  const preferredContact = donorResponse.preferredContact && donorResponse.preferredContact.description
+  const contactPerson = donorResponse.contactPerson && donorResponse.contactPerson.description
 
-  return { phone, email, mail, preferredContact }
+  return { phone, email, mail, preferredContact, contactPerson }
 }
 
 //Donation table response format
@@ -229,8 +232,8 @@ function tableFormat(donorResponse) {
       date: info.donationDate,
       amount: parseFloat(info.donationAmount),
       source: info.donationSource,
-      mode: info.PaymentType.description,
-      tax: info.taxDeductible.description,
+      mode: info.PaymentType && info.PaymentType.description,
+      tax: info.taxDeductible && info.taxDeductible.description,
       remarks: info.remarks
     }
   })
