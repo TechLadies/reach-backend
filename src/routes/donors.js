@@ -217,7 +217,7 @@ function detailsFormat(donorResponse) {
 function contactFormat(donorResponse) {
   const phone = donorResponse.contactNo
   const email = donorResponse.email
-  const mail = donorResponse.address1 + '' + donorResponse.address2
+  const mail = donorResponse.address1 + ' ' + donorResponse.address2 + ' ' + donorResponse.postalCode
   const preferredContact = donorResponse.preferredContact && donorResponse.preferredContact.description
   const contactPerson = donorResponse.contactPerson && donorResponse.contactPerson.description
 
