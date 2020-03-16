@@ -277,12 +277,12 @@ router.get('/search', function(req, res) {
     db.Donor.findAll({
       where: {
         name: {
-          [db.Sequelize.Op.like]: `%${req.query.name}%`
+          [db.Sequelize.Op.iLike]: `%${req.query.name}%`
         }
       },
       attributes: ['idNo', 'name', 'contactNo', 'email', 'dnc']
     }).then(donorObj => {
-      res.json(donorObj)
+      res.status(200).json(donorObj)
     })
   } catch (err) {
     res.status(500).json(err)
