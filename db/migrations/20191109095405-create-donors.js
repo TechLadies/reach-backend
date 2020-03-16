@@ -24,7 +24,7 @@ module.exports = {
           onUpdate: 'cascade'
       },
       salutationId: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
         allowNull: true
       },
       name: {
