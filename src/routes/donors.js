@@ -220,8 +220,9 @@ function contactFormat(donorResponse) {
   const mail = donorResponse.address1 + ' ' + donorResponse.address2 + ' ' + donorResponse.postalCode
   const preferredContact = donorResponse.preferredContact && donorResponse.preferredContact.description
   const contactPerson = donorResponse.contactPerson && donorResponse.contactPerson.description
+  const dnc = donorResponse.dnc
 
-  return { phone, email, mail, preferredContact, contactPerson }
+  return { phone, email, mail, preferredContact, contactPerson, dnc }
 }
 
 //Donation table response format
