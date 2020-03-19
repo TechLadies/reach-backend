@@ -116,7 +116,7 @@ router.get('/edit', (req, res) => {
 router.put('/edit/:idNo', (req, res) => {
   const { idNo: donorId } = req.params
   const { remarks, preferredContact, dnc } = req.body
-  if (!remarks && !preferredContact && !('dnc' in req.body)) {
+  if (!remarks /* && !preferredContact && !('dnc' in req.body) */) {
     return res.sendStatus(204).json({
       message: 'You have not sent any parameters for updating'
     })
