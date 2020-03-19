@@ -101,12 +101,24 @@ router.get('/sums', function(req, res, next) {
   })
 })
 
-router.put("/updatedonors/:id", (req, res) => {
-  const { id: donorId } = req.params
-  const { remarks, preferredContact } = req.body
-  if (!remarks && !preferredContact) {
+router.get('/edit', (req, res) => {
+  db.PreferredContact.findAll({
+    attributes: ['id', 'description']
+  })
+    .then(result => {
+      res.json(result)
+    })
+    .catch(error => {
+      res.status(500).json(error)
+    })
+})
+
+router.put('/edit/:idNo', (req, res) => {
+  const { idNo: donorId } = req.params
+  const { remarks, preferredContact, dnc } = req.body
+  if (!remarks && !preferredContact && !('dnc' in req.body)) {
     return res.sendStatus(204).json({
-      message: "You have not sent any parameters for updating"
+      message: 'You have not sent any parameters for updating'
     })
   }
   try {
@@ -115,36 +127,36 @@ router.put("/updatedonors/:id", (req, res) => {
     if (preferredContact) {
       prom = db.PreferredContact.findOne({
         where: {
-          description: preferredContact
+          id: preferredContact
         }
       })
     }
     prom
-    .then((preferredContact) => {
-      let updateParams = {}
-      if (remarks) {
-        updateParams.remarks = remarks
-      }
-      if (preferredContact) {
-        updateParams.preferredContactId = preferredContact.id
-      }
-      return db.Donor.update(
-        updateParams,
-        {
-          where: { id: donorId },
+      .then(preferredContact => {
+        let updateParams = {}
+        if (remarks) {
+          updateParams.remarks = remarks
+        }
+        if (preferredContact) {
+          updateParams.preferredContactId = preferredContact.id
+        }
+        if ('dnc' in req.body) {
+          updateParams.dnc = dnc
+        }
+        return db.Donor.update(updateParams, {
+          where: { idNo: donorId },
           returning: true
-        },
-      )
-    })
-    .then(([, result]) => {
-      res.json(result)
-    });
+        })
+      })
+      .then(([, result]) => {
+        res.json(result)
+      })
   } catch {
     res.sendStatus(500).json({
       message: 'Server Error'
     })
   }
-});
+})
 
 //donor details
 router.post('/details', function(req, res, next) {
@@ -202,12 +214,11 @@ router.post('/details', function(req, res, next) {
     ]
   })
     .then(donorResponse => {
-  
       if (donorResponse == null) {
         donorResponse = { value: 'No donor found' }
       }
       res.status(200).json(categorizedResponse(donorResponse))
-       /* res.status(200).json(donorResponse) */
+      /* res.status(200).json(donorResponse) */
     })
     .catch(error => {
       res.status(400).send(error)
@@ -215,7 +226,7 @@ router.post('/details', function(req, res, next) {
     })
 })
 
-const categorizedResponse = (donorResponse) => {
+const categorizedResponse = donorResponse => {
   return {
     details: detailsFormat(donorResponse),
     contact: contactFormat(donorResponse),
@@ -225,10 +236,13 @@ const categorizedResponse = (donorResponse) => {
 
 //Donor Details Card response format
 function detailsFormat(donorResponse) {
-  const donationSum = _.sumBy(donorResponse.donations, d => parseFloat(d.donationAmount))
+  const donationSum = _.sumBy(donorResponse.donations, d =>
+    parseFloat(d.donationAmount)
+  )
   const idNo = donorResponse.idNo
   const idType = donorResponse.idType && donorResponse.idType.description
-  const salutation = donorResponse.salutation && donorResponse.salutation.description
+  const salutation =
+    donorResponse.salutation && donorResponse.salutation.description
   const name = donorResponse.name
   const dateOfBirth = donorResponse.dateofBirth
   const donationCount = donorResponse.donations.length
@@ -248,9 +262,16 @@ function detailsFormat(donorResponse) {
 function contactFormat(donorResponse) {
   const phone = donorResponse.contactNo
   const email = donorResponse.email
-  const mail = donorResponse.address1 + ' ' + donorResponse.address2 + ' ' + donorResponse.postalCode
-  const preferredContact = donorResponse.preferredContact && donorResponse.preferredContact.description
-  const contactPerson = donorResponse.contactPerson && donorResponse.contactPerson.description
+  const mail =
+    donorResponse.address1 +
+    ' ' +
+    donorResponse.address2 +
+    ' ' +
+    donorResponse.postalCode
+  const preferredContact =
+    donorResponse.preferredContact && donorResponse.preferredContact.description
+  const contactPerson =
+    donorResponse.contactPerson && donorResponse.contactPerson.description
 
   return { phone, email, mail, preferredContact, contactPerson }
 }
