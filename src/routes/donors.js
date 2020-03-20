@@ -124,13 +124,6 @@ router.put('/edit/:idNo', (req, res) => {
   try {
     // We may or may not need to do this findOne, depending on whether the preferred contact is being updated.
     let prom = Promise.resolve({})
-    if (preferredContact) {
-      prom = db.PreferredContact.findOne({
-        where: {
-          id: preferredContact
-        }
-      })
-    }
     prom
       .then(preferredContact => {
         let updateParams = {}
