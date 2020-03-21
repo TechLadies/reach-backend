@@ -116,37 +116,31 @@ router.get('/edit', (req, res) => {
 router.put('/edit/:idNo', (req, res) => {
   const { idNo: donorId } = req.params
   const { remarks, preferredContact, dnc } = req.body
-  if (!remarks /* && !preferredContact && !('dnc' in req.body) */) {
-    return res.sendStatus(204).json({
+  if (!remarks && !preferredContact && !('dnc' in req.body)) {
+    return res.status(204).json({
       message: 'You have not sent any parameters for updating'
     })
   }
   try {
-    // We may or may not need to do this findOne, depending on whether the preferred contact is being updated.
-    let prom = Promise.resolve({})
-    prom
-      .then(preferredContact => {
-        let updateParams = {}
-        if (remarks) {
-          updateParams.remarks = remarks
-        }
-        if (preferredContact) {
-          updateParams.preferredContactId = preferredContact.id
-        }
-        if ('dnc' in req.body) {
-          updateParams.dnc = dnc
-        }
-        return db.Donor.update(updateParams, {
-          where: { idNo: donorId },
-          returning: true
-        })
-      })
-      .then(([, result]) => {
-        res.json(result)
-      })
-  } catch {
+    const updateParams = {}
+    if (remarks) {
+      updateParams.remarks = remarks
+    }
+    if (preferredContact) {
+      updateParams.preferredContactId = preferredContact
+    }
+    if ('dnc' in req.body) {
+      updateParams.dnc = dnc
+    }
+    return db.Donor.update(updateParams, {
+      where: { idNo: donorId },
+      returning: true
+    }).then(([, result]) => {
+      res.json(result)
+    })
+  } catch (error) {
     res.sendStatus(500).json({
-      message: 'Server Error'
+      message: error
     })
   }
 })
@@ -255,9 +249,16 @@ function detailsFormat(donorResponse) {
 function contactFormat(donorResponse) {
   const phone = donorResponse.contactNo
   const email = donorResponse.email
-  const mail = donorResponse.address1 + ' ' + donorResponse.address2 + ' ' + donorResponse.postalCode
-  const preferredContact = donorResponse.preferredContact && donorResponse.preferredContact.description
-  const contactPerson = donorResponse.contactPerson && donorResponse.contactPerson.description
+  const mail =
+    donorResponse.address1 +
+    ' ' +
+    donorResponse.address2 +
+    ' ' +
+    donorResponse.postalCode
+  const preferredContact =
+    donorResponse.preferredContact && donorResponse.preferredContact.description
+  const contactPerson =
+    donorResponse.contactPerson && donorResponse.contactPerson.description
   const dnc = donorResponse.dnc
 
   return { phone, email, mail, preferredContact, contactPerson, dnc }
