@@ -101,18 +101,48 @@ router.get('/sums', function(req, res, next) {
   })
 })
 
-router.put('/updatedonors/:id', (req, res) => {
-  console.log('hello world')
-  db.Donor.update(
-    {
-      email: req.body.email
-    },
-    {
-      where: {
-        id: req.params.id
-      }
+router.get('/edit', (req, res) => {
+  db.PreferredContact.findAll({
+    attributes: ['id', 'description']
+  })
+    .then(result => {
+      res.json(result)
+    })
+    .catch(error => {
+      res.status(500).json(error)
+    })
+})
+
+router.put('/edit/:idNo', (req, res) => {
+  const { idNo: donorId } = req.params
+  const { remarks, preferredContact, dnc } = req.body
+  if (!remarks && !preferredContact && !('dnc' in req.body)) {
+    return res.status(204).json({
+      message: 'You have not sent any parameters for updating'
+    })
+  }
+  try {
+    const updateParams = {}
+    if (remarks) {
+      updateParams.remarks = remarks
     }
-  ).then(result => res.json(result))
+    if (preferredContact) {
+      updateParams.preferredContactId = preferredContact
+    }
+    if ('dnc' in req.body) {
+      updateParams.dnc = dnc
+    }
+    return db.Donor.update(updateParams, {
+      where: { idNo: donorId },
+      returning: true
+    }).then(([, result]) => {
+      res.json(result)
+    })
+  } catch (error) {
+    res.sendStatus(500).json({
+      message: error
+    })
+  }
 })
 
 //donor details
@@ -171,12 +201,11 @@ router.post('/details', function(req, res, next) {
     ]
   })
     .then(donorResponse => {
-  
       if (donorResponse == null) {
         donorResponse = { value: 'No donor found' }
       }
       res.status(200).json(categorizedResponse(donorResponse))
-       /* res.status(200).json(donorResponse) */
+      /* res.status(200).json(donorResponse) */
     })
     .catch(error => {
       res.status(400).send(error)
@@ -184,7 +213,7 @@ router.post('/details', function(req, res, next) {
     })
 })
 
-const categorizedResponse = (donorResponse) => {
+const categorizedResponse = donorResponse => {
   return {
     details: detailsFormat(donorResponse),
     contact: contactFormat(donorResponse),
@@ -194,10 +223,13 @@ const categorizedResponse = (donorResponse) => {
 
 //Donor Details Card response format
 function detailsFormat(donorResponse) {
-  const donationSum = _.sumBy(donorResponse.donations, d => parseFloat(d.donationAmount))
+  const donationSum = _.sumBy(donorResponse.donations, d =>
+    parseFloat(d.donationAmount)
+  )
   const idNo = donorResponse.idNo
   const idType = donorResponse.idType && donorResponse.idType.description
-  const salutation = donorResponse.salutation && donorResponse.salutation.description
+  const salutation =
+    donorResponse.salutation && donorResponse.salutation.description
   const name = donorResponse.name
   const dateOfBirth = donorResponse.dateofBirth
   const donationCount = donorResponse.donations.length
@@ -217,9 +249,16 @@ function detailsFormat(donorResponse) {
 function contactFormat(donorResponse) {
   const phone = donorResponse.contactNo
   const email = donorResponse.email
-  const mail = donorResponse.address1 + ' ' + donorResponse.address2 + ' ' + donorResponse.postalCode
-  const preferredContact = donorResponse.preferredContact && donorResponse.preferredContact.description
-  const contactPerson = donorResponse.contactPerson && donorResponse.contactPerson.description
+  const mail =
+    donorResponse.address1 +
+    ' ' +
+    donorResponse.address2 +
+    ' ' +
+    donorResponse.postalCode
+  const preferredContact =
+    donorResponse.preferredContact && donorResponse.preferredContact.description
+  const contactPerson =
+    donorResponse.contactPerson && donorResponse.contactPerson.description
   const dnc = donorResponse.dnc
 
   return { phone, email, mail, preferredContact, contactPerson, dnc }
