@@ -294,21 +294,32 @@ router.get('/search', function(req, res) {
         {
           model: db.Donation,
           as: 'donations',
-          attributes: [
-            [
-              Sequelize.fn('SUM', Sequelize.col('donationAmount')),
-              'totalAmountDonated'
-            ]
-          ]
+          attributes: ['donationAmount']
         }
-      ],
-      group: ['Donor.id', 'donations.id']
+      ]
     }).then(donorObj => {
-      res.status(200).json(donorObj)
+      res.status(200).json(reformat(donorObj))
     })
   } catch (err) {
     res.status(500).json(err)
   }
 })
+
+const reformat = donorObj => {
+  const format = i => {
+    const donationsArr = _.map(i.donations, e => parseFloat(e.donationAmount))
+    const totalDonatedAmount = _.sum(donationsArr)
+    return {
+      idNo: i.idNo,
+      name: i.name,
+      contactNo: i.contactNo,
+      email: i.email,
+      dnc: i.dnc,
+      totalDonatedAmount
+    }
+  }
+  const reformatArr = _.map(donorObj, format)
+  return reformatArr
+}
 
 module.exports = router
