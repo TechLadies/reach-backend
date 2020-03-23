@@ -289,7 +289,20 @@ router.get('/search', function(req, res) {
           [db.Sequelize.Op.iLike]: `%${req.query.name}%`
         }
       },
-      attributes: ['idNo', 'name', 'contactNo', 'email', 'dnc']
+      attributes: ['idNo', 'name', 'contactNo', 'email', 'dnc'],
+      include: [
+        {
+          model: db.Donation,
+          as: 'donations',
+          attributes: [
+            [
+              Sequelize.fn('SUM', Sequelize.col('donationAmount')),
+              'totalAmountDonated'
+            ]
+          ]
+        }
+      ],
+      group: ['Donor.id', 'donations.id']
     }).then(donorObj => {
       res.status(200).json(donorObj)
     })
