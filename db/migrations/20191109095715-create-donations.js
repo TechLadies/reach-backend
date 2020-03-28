@@ -75,7 +75,8 @@ module.exports = {
       },
       receiptNo:{
         allowNull: true,
-        type: Sequelize.STRING   
+        type: Sequelize.STRING ,
+        unique: true
       },
       void: {
         allowNull:false,  

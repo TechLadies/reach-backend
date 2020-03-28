@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
   const Donation = sequelize.define('Donation', {
     donorId: DataTypes.INTEGER,
     donationDate: DataTypes.DATE,
-    donationAmount: DataTypes.NUMERIC,
+    donationAmount: DataTypes.DECIMAL,
     sourceId: DataTypes.INTEGER,
     intentId: DataTypes.INTEGER,
     paymentTypeId: DataTypes.INTEGER,
@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     paymentRef: DataTypes.STRING,
     taxDeductible: DataTypes.BOOLEAN,
     remarks: DataTypes.STRING,
-    receiptNo: DataTypes.STRING,
+    receiptNo: { type: DataTypes.STRING, unique: true },
     void: DataTypes.BOOLEAN
   }, {});
   Donation.associate = function(models) {
@@ -29,13 +29,9 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Donation.belongsTo(models.PaymentType, {
-      foreignKey: 'id'
+      foreignKey: 'paymentTypeId'
     });
 
-    Donation.belongsTo(models.Intent, {
-      foreignKey: 'intentId',
-      as: 'intent'
-    });
   };
   return Donation;
 };
