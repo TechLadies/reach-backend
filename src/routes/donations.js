@@ -62,7 +62,6 @@ router.post('/dashboard', function(req, res, next) {
 
   queries[2] = db.Donation.count('donationAmount')
 
-
   queries[3] = db.Donation.findAll({
     attributes: [
       [
@@ -107,6 +106,7 @@ router.post('/dashboard', function(req, res, next) {
 })
 
 router.post('/upload', (req, res) => {
+  const requestBody = req.body
   return db.sequelize.transaction(t => {
     return _createCaches()
       .then(caches => {
@@ -154,6 +154,7 @@ router.post('/upload', (req, res) => {
           return previousPromise.then(_ => nextPromise(_))
         }, Promise.resolve([]))
       })
+      .then(_insertUploadRecord({ requestBody, t }))
       .then(results => {
         const deduped = () => {
           return {
@@ -295,8 +296,19 @@ function _upsertDonorInsertDonation({
   })
 }
 
+function _insertUploadRecord({ requestBody, transaction }) {
+  const donationDateArr = requestBody.map(entry =>
+    Date.parse(transformDate(entry['Date of Donation']))
+  )
+  const period = {}
+  const sorted = _.sortBy(donationDateArr)
+  period['firstDate'] = new Date(sorted[0])
+  period['lastDate'] = new Date(sorted[sorted.length - 1])
+  return db.Upload.create(period, { transaction })
+}
+
 function _validateIncomingDonor(incoming) {
-  // Nothing here yet
+  //Nothing here yet
 }
 function _validateIncomingDonation(incoming) {
   if (!incoming['Receipt Serial No']) {
