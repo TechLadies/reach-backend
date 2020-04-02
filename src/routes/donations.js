@@ -233,16 +233,9 @@ function _simpleCache(Model) {
   }
 }
 
-const transformDate = date => {
-  return date
-    .split('/')
-    .reverse()
-    .join('-')
-}
-
 function _buildDonation(csvDonation) {
   return {
-    donationDate: transformDate(csvDonation['Date of Donation']),
+    donationDate: csvDonation['Date of Donation'],
     donationAmount: csvDonation['Amount'],
     donationType: csvDonation['Type of Donation'],
     remarks: csvDonation['Remarks'],
@@ -298,7 +291,7 @@ function _upsertDonorInsertDonation({
 
 function _insertUploadRecord({ requestBody, transaction }) {
   const donationDateArr = requestBody.map(entry =>
-    Date.parse(transformDate(entry['Date of Donation']))
+    Date.parse(entry['Date of Donation'])
   )
   const period = {}
   const sorted = _.sortBy(donationDateArr)
@@ -353,9 +346,9 @@ function summary(results) {
   }, 0)
   const totalCount = results.length
   const dateFormatter = _.map(results, el => Date.parse(el.donationDate))
-  const maxDate = dateStringOf(new Date(Math.max.apply(null, dateFormatter)))
-  const minDate = dateStringOf(new Date(Math.min.apply(null, dateFormatter)))
-  const period = () => {
+  const maxDate = new Date(Math.max.apply(null, dateFormatter))
+  const minDate = new Date(Math.min.apply(null, dateFormatter))
+  /* const period = () => {
     if (minDate.year === maxDate.year) {
       if (minDate.month === maxDate.month) {
         return `${minDate.day} - ${maxDate.day} ${maxDate.month} ${maxDate.year}`
@@ -365,33 +358,9 @@ function summary(results) {
     } else {
       return `${minDate.fullDate} - ${maxDate.fullDate}`
     }
-  }
+  } */
 
-  return { totalCount, totalAmt, period: period() }
-}
-
-function dateStringOf(date) {
-  const day = date.getDate()
-  const year = date.getFullYear()
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec'
-  ]
-  const month = months[date.getMonth()]
-  const fullDate = day + ' ' + month + ' ' + year
-  const dateMonth = day + ' ' + month
-
-  return { day, month, year, fullDate, dateMonth }
+  return { totalCount, totalAmt, maxDate, minDate/* period: period() */ }
 }
 
 function _handleError(res, e) {
