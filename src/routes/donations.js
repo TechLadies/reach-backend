@@ -348,19 +348,8 @@ function summary(results) {
   const dateFormatter = _.map(results, el => Date.parse(el.donationDate))
   const maxDate = new Date(Math.max.apply(null, dateFormatter))
   const minDate = new Date(Math.min.apply(null, dateFormatter))
-  /* const period = () => {
-    if (minDate.year === maxDate.year) {
-      if (minDate.month === maxDate.month) {
-        return `${minDate.day} - ${maxDate.day} ${maxDate.month} ${maxDate.year}`
-      } else {
-        return `${minDate.dateMonth} - ${maxDate.dateMonth} ${maxDate.year}`
-      }
-    } else {
-      return `${minDate.fullDate} - ${maxDate.fullDate}`
-    }
-  } */
 
-  return { totalCount, totalAmt, maxDate, minDate/* period: period() */ }
+  return { totalCount, totalAmt, maxDate, minDate } 
 }
 
 function _handleError(res, e) {
