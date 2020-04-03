@@ -154,7 +154,9 @@ router.post('/upload', (req, res) => {
           return previousPromise.then(_ => nextPromise(_))
         }, Promise.resolve([]))
       })
-      .then(_insertUploadRecord({ requestBody, t }))
+      .then(result => {
+        return _insertUploadRecord({ requestBody, t }).then(() => result)
+      })
       .then(results => {
         const deduped = () => {
           return {
@@ -349,7 +351,7 @@ function summary(results) {
   const maxDate = new Date(Math.max.apply(null, dateFormatter))
   const minDate = new Date(Math.min.apply(null, dateFormatter))
 
-  return { totalCount, totalAmt, maxDate, minDate } 
+  return { totalCount, totalAmt, maxDate, minDate }
 }
 
 function _handleError(res, e) {
