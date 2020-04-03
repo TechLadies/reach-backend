@@ -62,7 +62,6 @@ router.post('/dashboard', function(req, res, next) {
 
   queries[2] = db.Donation.count('donationAmount')
 
-
   queries[3] = db.Donation.findAll({
     attributes: [
       [
@@ -107,6 +106,7 @@ router.post('/dashboard', function(req, res, next) {
 })
 
 router.post('/upload', (req, res) => {
+  const requestBody = req.body
   return db.sequelize.transaction(t => {
     return _createCaches()
       .then(caches => {
@@ -153,6 +153,9 @@ router.post('/upload', (req, res) => {
         return promises.reduce((previousPromise, nextPromise) => {
           return previousPromise.then(_ => nextPromise(_))
         }, Promise.resolve([]))
+      })
+      .then(result => {
+        return _insertUploadRecord({ requestBody, t }).then(() => result)
       })
       .then(results => {
         const deduped = () => {
@@ -232,16 +235,9 @@ function _simpleCache(Model) {
   }
 }
 
-const transformDate = date => {
-  return date
-    .split('/')
-    .reverse()
-    .join('-')
-}
-
 function _buildDonation(csvDonation) {
   return {
-    donationDate: transformDate(csvDonation['Date of Donation']),
+    donationDate: csvDonation['Date of Donation'],
     donationAmount: csvDonation['Amount'],
     donationType: csvDonation['Type of Donation'],
     remarks: csvDonation['Remarks'],
@@ -295,8 +291,19 @@ function _upsertDonorInsertDonation({
   })
 }
 
+function _insertUploadRecord({ requestBody, transaction }) {
+  const donationDateArr = requestBody.map(entry =>
+    Date.parse(entry['Date of Donation'])
+  )
+  const period = {}
+  const sorted = _.sortBy(donationDateArr)
+  period['firstDate'] = new Date(sorted[0])
+  period['lastDate'] = new Date(sorted[sorted.length - 1])
+  return db.Upload.create(period, { transaction })
+}
+
 function _validateIncomingDonor(incoming) {
-  // Nothing here yet
+  //Nothing here yet
 }
 function _validateIncomingDonation(incoming) {
   if (!incoming['Receipt Serial No']) {
@@ -341,45 +348,10 @@ function summary(results) {
   }, 0)
   const totalCount = results.length
   const dateFormatter = _.map(results, el => Date.parse(el.donationDate))
-  const maxDate = dateStringOf(new Date(Math.max.apply(null, dateFormatter)))
-  const minDate = dateStringOf(new Date(Math.min.apply(null, dateFormatter)))
-  const period = () => {
-    if (minDate.year === maxDate.year) {
-      if (minDate.month === maxDate.month) {
-        return `${minDate.day} - ${maxDate.day} ${maxDate.month} ${maxDate.year}`
-      } else {
-        return `${minDate.dateMonth} - ${maxDate.dateMonth} ${maxDate.year}`
-      }
-    } else {
-      return `${minDate.fullDate} - ${maxDate.fullDate}`
-    }
-  }
+  const maxDate = new Date(Math.max.apply(null, dateFormatter))
+  const minDate = new Date(Math.min.apply(null, dateFormatter))
 
-  return { totalCount, totalAmt, period: period() }
-}
-
-function dateStringOf(date) {
-  const day = date.getDate()
-  const year = date.getFullYear()
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec'
-  ]
-  const month = months[date.getMonth()]
-  const fullDate = day + ' ' + month + ' ' + year
-  const dateMonth = day + ' ' + month
-
-  return { day, month, year, fullDate, dateMonth }
+  return { totalCount, totalAmt, maxDate, minDate }
 }
 
 function _handleError(res, e) {

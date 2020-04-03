@@ -151,15 +151,6 @@ router.post('/details', function(req, res, next) {
   var ic_number = req.body.donorIdNo
 
   db.Donor.findOne({
-    // attributes: [
-    //   "id",
-    //   "idNo",
-    //   "name",
-    //   "contactNo",
-    //   "email",
-    //   "dnc",
-    //   [Sequelize.fn("SUM", Sequelize.col("donationAmount")),"totalAmountDonated"]
-    // ],
     where: {
       idNo: ic_number
     },
@@ -190,7 +181,7 @@ router.post('/details', function(req, res, next) {
       },
       {
         model: db.PreferredContact,
-        attributes: ['description'],
+        attributes: ['id', 'description'],
         as: 'preferredContact'
       },
       {
@@ -255,13 +246,23 @@ function contactFormat(donorResponse) {
     donorResponse.address2 +
     ' ' +
     donorResponse.postalCode
+  const preferredContactId =
+    donorResponse.preferredContact && donorResponse.preferredContact.id
   const preferredContact =
     donorResponse.preferredContact && donorResponse.preferredContact.description
   const contactPerson =
     donorResponse.contactPerson && donorResponse.contactPerson.description
   const dnc = donorResponse.dnc
 
-  return { phone, email, mail, preferredContact, contactPerson, dnc }
+  return {
+    phone,
+    email,
+    mail,
+    preferredContactId,
+    preferredContact,
+    contactPerson,
+    dnc
+  }
 }
 
 //Donation table response format
