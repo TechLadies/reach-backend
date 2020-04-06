@@ -13,15 +13,14 @@ const donationsRouter = require('./routes/donations')
 const donorsRouter = require('./routes/donors')
 const salutationsRouter = require('./routes/salutations')
 const uploadsRouter = require('./routes/uploads')
-
 const app = express()
+
 
 app.use(cors())
 app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
-
 app.use(passport.initialize());
 
 app.post('/login', auth.login);
