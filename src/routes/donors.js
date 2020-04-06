@@ -4,9 +4,10 @@ const Sequelize = require('sequelize')
 const db = require('../models/index')
 const pagination = require('../middlewares/pagination')
 const _ = require('lodash')
+const BigNumber = require('bignumber.js')
 
 //donor list table
-router.get('/', pagination, function(req, res, next) {
+router.get('/', pagination, function (req, res, next) {
   let offset = req.customParams.offset
   let limit = req.customParams.limit
 
@@ -52,8 +53,8 @@ router.get('/', pagination, function(req, res, next) {
           'dnc',
           [
             Sequelize.fn('SUM', Sequelize.col('donationAmount')),
-            'totalAmountDonated'
-          ]
+            'totalAmountDonated',
+          ],
         ],
         include: [
           {
@@ -70,17 +71,17 @@ router.get('/', pagination, function(req, res, next) {
             //     model: db.Source
             //   }
             // ]
-            attributes: []
-          }
+            attributes: [],
+          },
         ],
         group: ['Donor.id'],
-        subQuery: false
+        subQuery: false,
       })
-      .then(donorObj => {
+      .then((donorObj) => {
         res.json({
           data: donorObj,
           perPage: limit,
-          offset: offset
+          offset: offset,
         })
       })
   } catch (err) {
@@ -88,27 +89,27 @@ router.get('/', pagination, function(req, res, next) {
   }
 })
 
-router.get('/count', function(req, res, next) {
-  db.Donor.count().then(count => {
+router.get('/count', function (req, res, next) {
+  db.Donor.count().then((count) => {
     console.log(count)
     res.json(count)
   })
 })
 
-router.get('/sums', function(req, res, next) {
-  db.Donation.sum('donationAmount').then(sum => {
+router.get('/sums', function (req, res, next) {
+  db.Donation.sum('donationAmount').then((sum) => {
     res.json(sum)
   })
 })
 
 router.get('/edit', (req, res) => {
   db.PreferredContact.findAll({
-    attributes: ['id', 'description']
+    attributes: ['id', 'description'],
   })
-    .then(result => {
+    .then((result) => {
       res.json(result)
     })
-    .catch(error => {
+    .catch((error) => {
       res.status(500).json(error)
     })
 })
@@ -118,7 +119,7 @@ router.put('/edit/:idNo', (req, res) => {
   const { remarks, preferredContact, dnc } = req.body
   if (!remarks && !preferredContact && !('dnc' in req.body)) {
     return res.status(204).json({
-      message: 'You have not sent any parameters for updating'
+      message: 'You have not sent any parameters for updating',
     })
   }
   try {
@@ -134,25 +135,25 @@ router.put('/edit/:idNo', (req, res) => {
     }
     return db.Donor.update(updateParams, {
       where: { idNo: donorId },
-      returning: true
+      returning: true,
     }).then(([, result]) => {
       res.json(result)
     })
   } catch (error) {
     res.sendStatus(500).json({
-      message: error
+      message: error,
     })
   }
 })
 
 //donor details
-router.post('/details', function(req, res, next) {
+router.post('/details', function (req, res, next) {
   // GET selected donor of idNo.
   var ic_number = req.body.donorIdNo
 
   db.Donor.findOne({
     where: {
-      idNo: ic_number
+      idNo: ic_number,
     },
     include: [
       {
@@ -161,62 +162,63 @@ router.post('/details', function(req, res, next) {
         include: [
           {
             model: db.Source,
-            attributes: ['description']
+            attributes: ['description'],
           },
           {
             model: db.PaymentType,
-            attributes: ['description']
-          }
-        ]
+            attributes: ['description'],
+          },
+        ],
       },
       {
         model: db.IdType,
         attributes: ['description'],
-        as: 'idType'
+        as: 'idType',
       },
       {
         model: db.Salutation,
         attributes: ['description'],
-        as: 'salutation'
+        as: 'salutation',
       },
       {
         model: db.PreferredContact,
         attributes: ['id', 'description'],
-        as: 'preferredContact'
+        as: 'preferredContact',
       },
       {
         model: db.ContactPerson,
         attributes: ['name'],
-        as: 'contactPerson'
-      }
-    ]
+        as: 'contactPerson',
+      },
+    ],
   })
-    .then(donorResponse => {
+    .then((donorResponse) => {
       if (donorResponse == null) {
         donorResponse = { value: 'No donor found' }
       }
       res.status(200).json(categorizedResponse(donorResponse))
       /* res.status(200).json(donorResponse) */
     })
-    .catch(error => {
+    .catch((error) => {
       res.status(400).send(error)
       console.log(error)
     })
 })
 
-const categorizedResponse = donorResponse => {
+const categorizedResponse = (donorResponse) => {
   return {
     details: detailsFormat(donorResponse),
     contact: contactFormat(donorResponse),
-    donations: tableFormat(donorResponse)
+    donations: tableFormat(donorResponse),
   }
 }
 
 //Donor Details Card response format
 function detailsFormat(donorResponse) {
-  const donationSum = _.sumBy(donorResponse.donations, d =>
-    parseFloat(d.donationAmount)
-  )
+  const donations = _.map(donorResponse.donations, (d) => d.donationAmount)
+  const donationSum = donations.reduce((sum, donation) => {
+    return sum.plus(donation)
+  }, new BigNumber(0))
   const idNo = donorResponse.idNo
   const idType = donorResponse.idType && donorResponse.idType.description
   const salutation =
@@ -233,7 +235,7 @@ function detailsFormat(donorResponse) {
     dateOfBirth,
     donationCount,
     donationSum,
-    donorRemarks
+    donorRemarks,
   }
 }
 //Contact details Card response format
@@ -261,44 +263,44 @@ function contactFormat(donorResponse) {
     preferredContactId,
     preferredContact,
     contactPerson,
-    dnc
+    dnc,
   }
 }
 
 //Donation table response format
 function tableFormat(donorResponse) {
   const donationsArr = donorResponse.donations
-  const tableInfo = _.map(donationsArr, info => {
+  const tableInfo = _.map(donationsArr, (info) => {
     return {
       date: info.donationDate,
       amount: parseFloat(info.donationAmount),
       source: info.donationSource,
       mode: info.PaymentType && info.PaymentType.description,
       tax: info.taxDeductible && info.taxDeductible.description,
-      remarks: info.remarks
+      remarks: info.remarks,
     }
   })
   return tableInfo
 }
 
 // TO DO: fully implement the search for donor
-router.get('/search', function(req, res) {
+router.get('/search', function (req, res) {
   try {
     db.Donor.findAll({
       where: {
         name: {
-          [db.Sequelize.Op.iLike]: `%${req.query.name}%`
-        }
+          [db.Sequelize.Op.iLike]: `%${req.query.name}%`,
+        },
       },
       attributes: ['idNo', 'name', 'contactNo', 'email', 'dnc'],
       include: [
         {
           model: db.Donation,
           as: 'donations',
-          attributes: ['donationAmount']
-        }
-      ]
-    }).then(donorObj => {
+          attributes: ['donationAmount'],
+        },
+      ],
+    }).then((donorObj) => {
       res.status(200).json(reformat(donorObj))
     })
   } catch (err) {
@@ -306,10 +308,14 @@ router.get('/search', function(req, res) {
   }
 })
 
-const reformat = donorObj => {
-  const format = i => {
-    const donationsArr = _.map(i.donations, e => parseFloat(e.donationAmount))
-    const totalDonatedAmount = _.sum(donationsArr)
+const reformat = (donorObj) => {
+  const format = (i) => {
+    const donationsArr = _.map(i.donations, (e) => e.donationAmount)
+    const totalDonatedAmount = donationsArr.reduce((sum, donation) => {
+      return sum.plus(donation)
+    }, new BigNumber(0))
+
+    console.log(totalDonatedAmount)
     return {
       idNo: i.idNo,
       name: i.name,

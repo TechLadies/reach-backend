@@ -3,6 +3,7 @@ const router = express.Router()
 const db = require('../models/index')
 const _ = require('lodash')
 const Sequelize = require('sequelize')
+const BigNumber = require('bignumber.js')
 
 /* GET Donations records. */
 router.get('/', function(req, res, next) {
@@ -322,8 +323,8 @@ function _groupDonors(results) {
   const groupedArr = _.map(groupById, (details, id) => {
     const donationCount = details.length
     const sum = details.reduce((sum, donation) => {
-      return sum + donation.donationAmount
-    }, 0)
+      return sum.plus(donation.donationAmount)
+    }, new BigNumber(0))
     const name = _.last(details).name
     const idNo = _.last(details).idNo
     const __isNew = _.first(details).__isNew
@@ -344,8 +345,8 @@ function _groupDonors(results) {
 function summary(results) {
   const donations = _.map(results, el => el.donationAmount)
   const totalAmt = donations.reduce((sum, donation) => {
-    return sum + donation
-  }, 0)
+    return sum.plus(donation)
+  }, new BigNumber(0))
   const totalCount = results.length
   const dateFormatter = _.map(results, el => Date.parse(el.donationDate))
   const maxDate = new Date(Math.max.apply(null, dateFormatter))
