@@ -3,16 +3,16 @@ const router = express.Router()
 const db = require('../models/index')
 const _ = require('lodash')
 const Sequelize = require('sequelize')
-const BigNumber = require('bignumber.js')
+const summation = require('../lib/math')
 
 /* GET Donations records. */
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
   const { start, end } = req.query
   console.log(req.query)
   res.status(200).json({})
 })
 
-router.post('/all', function(req, res, next) {
+router.post('/all', function (req, res, next) {
   // GET Donations records.
   db.Donation.findAll({
     attributes: [
@@ -20,19 +20,19 @@ router.post('/all', function(req, res, next) {
       'donationDate',
       'donationAmount',
       'donationType',
-      'paymentRef'
-    ]
+      'paymentRef',
+    ],
   })
-    .then(donationsResponse => {
+    .then((donationsResponse) => {
       res.status(200).json(donationsResponse)
     })
-    .catch(error => {
+    .catch((error) => {
       res.status(400).send(error)
     })
 })
 
 //api for the dashboard
-router.post('/dashboard', function(req, res, next) {
+router.post('/dashboard', function (req, res, next) {
   // JSON object
   var response = {}
   var tmp = {}
@@ -49,15 +49,15 @@ router.post('/dashboard', function(req, res, next) {
   queries[0] = db.Donation.findAll({
     attributes: [
       'donationDate',
-      [Sequelize.fn('SUM', Sequelize.col('donationAmount')), 'donationAmount']
+      [Sequelize.fn('SUM', Sequelize.col('donationAmount')), 'donationAmount'],
     ],
     group: ['donationDate'],
     order: ['donationDate'],
     where: {
       donationDate: {
-        [Sequelize.Op.between]: [startDate, endDate]
-      }
-    }
+        [Sequelize.Op.between]: [startDate, endDate],
+      },
+    },
   })
   queries[1] = db.Donation.sum('donationAmount')
 
@@ -67,17 +67,17 @@ router.post('/dashboard', function(req, res, next) {
     attributes: [
       [
         Sequelize.fn('', Sequelize.col('Source.description')),
-        'sourceDescription'
+        'sourceDescription',
       ],
       [
         Sequelize.fn('SUM', Sequelize.col('donationAmount')),
-        'totalAmountDonated'
-      ]
+        'totalAmountDonated',
+      ],
     ],
     where: {
       donationDate: {
-        [Sequelize.Op.between]: [startDate, endDate]
-      }
+        [Sequelize.Op.between]: [startDate, endDate],
+      },
     },
     order: [[Sequelize.fn('SUM', Sequelize.col('donationAmount')), 'DESC']],
     limit: 5,
@@ -85,10 +85,10 @@ router.post('/dashboard', function(req, res, next) {
     include: [
       {
         model: db.Source,
-        attributes: []
-      }
+        attributes: [],
+      },
     ],
-    group: ['Source.description', 'Source.id']
+    group: ['Source.description', 'Source.id'],
   })
 
   Promise.all(queries)
@@ -101,73 +101,73 @@ router.post('/dashboard', function(req, res, next) {
         res.status(200).json(response)
       }
     )
-    .catch(error => {
+    .catch((error) => {
       res.status(400).send(error)
     })
 })
 
 router.post('/upload', (req, res) => {
   const requestBody = req.body
-  return db.sequelize.transaction(t => {
+  return db.sequelize.transaction((t) => {
     return _createCaches()
-      .then(caches => {
-        return req.body.map(donationWithDonor => {
+      .then((caches) => {
+        return req.body.map((donationWithDonor) => {
           _validateIncomingDonor(donationWithDonor)
           _validateIncomingDonation(donationWithDonor)
           // Doing this because they're independent queries and I want to blast through them as fast as possible with a Promise.all
           const foreignQueries = []
-          foreignQueries[0] = _donationWithDonor =>
+          foreignQueries[0] = (_donationWithDonor) =>
             caches.salutationsCache.findOrCreate(_donationWithDonor.Salutation)
-          foreignQueries[1] = _donationWithDonor =>
+          foreignQueries[1] = (_donationWithDonor) =>
             caches.idTypeCache.findOrCreate(_donationWithDonor['ID Type'])
-          foreignQueries[2] = _donationWithDonor =>
+          foreignQueries[2] = (_donationWithDonor) =>
             caches.sourceCache.findOrCreate(_donationWithDonor.Project)
-          foreignQueries[3] = _donationWithDonor =>
+          foreignQueries[3] = (_donationWithDonor) =>
             caches.paymentTypeCache.findOrCreate(
               _donationWithDonor['Type of Payment']
             )
 
-          return previousResult =>
-            Promise.all(foreignQueries.map(fq => fq(donationWithDonor))).then(
+          return (previousResult) =>
+            Promise.all(foreignQueries.map((fq) => fq(donationWithDonor))).then(
               ([salutationId, idTypeId, sourceId, paymentTypeId]) => {
                 const donation = {
                   ..._buildDonation(donationWithDonor),
                   sourceId,
-                  paymentTypeId
+                  paymentTypeId,
                 }
                 const donor = {
                   ..._buildDonor(donationWithDonor),
                   idTypeId,
-                  salutationId
+                  salutationId,
                 }
                 return _upsertDonorInsertDonation({
                   donor,
                   donation,
                   transaction: t,
-                  previousResult
+                  previousResult,
                 })
               }
             )
         })
       })
-      .then(promises => {
+      .then((promises) => {
         return promises.reduce((previousPromise, nextPromise) => {
-          return previousPromise.then(_ => nextPromise(_))
+          return previousPromise.then((_) => nextPromise(_))
         }, Promise.resolve([]))
       })
-      .then(result => {
+      .then((result) => {
         return _insertUploadRecord({ requestBody, t }).then(() => result)
       })
-      .then(results => {
+      .then((results) => {
         const deduped = () => {
           return {
             data: _groupDonors(results),
-            summary: summary(results)
+            summary: summary(results),
           }
         }
         res.status(200).send(deduped())
       })
-      .catch(e => {
+      .catch((e) => {
         console.log(e)
         _handleError(res, e)
       })
@@ -191,13 +191,13 @@ function _createCaches() {
     salutationsCache.populate(),
     idTypeCache.populate(),
     sourceCache.populate(),
-    paymentTypeCache.populate()
+    paymentTypeCache.populate(),
   ]).then(() => {
     return {
       salutationsCache,
       idTypeCache,
       sourceCache,
-      paymentTypeCache
+      paymentTypeCache,
     }
   })
 }
@@ -211,7 +211,7 @@ function _simpleCache(Model) {
   return {
     data: {},
     populate() {
-      return Model.findAll().then(items => {
+      return Model.findAll().then((items) => {
         const obj = items.reduce((cache, model) => {
           cache[model.description] = model.id
           return cache
@@ -227,12 +227,12 @@ function _simpleCache(Model) {
         return Promise.resolve(found)
       }
       return Model.create({
-        description
-      }).then(model => {
+        description,
+      }).then((model) => {
         this.data[description] = model.id
         return model.id
       })
-    }
+    },
   }
 }
 
@@ -244,7 +244,7 @@ function _buildDonation(csvDonation) {
     remarks: csvDonation['Remarks'],
     receiptNo: csvDonation['Receipt Serial No'],
     void: csvDonation['Void'],
-    taxDeductible: csvDonation['Tax Deductible'] || false
+    taxDeductible: csvDonation['Tax Deductible'] || false,
   }
 }
 
@@ -256,7 +256,7 @@ function _buildDonor(csvDonation) {
     contactNo: csvDonation['Tel No'],
     address1: csvDonation['Add 1'],
     address2: csvDonation['Add 2'],
-    postalCode: csvDonation['Postal Code']
+    postalCode: csvDonation['Postal Code'],
   }
 }
 
@@ -267,25 +267,25 @@ function _upsertDonorInsertDonation({
   donor,
   donation,
   transaction,
-  previousResult
+  previousResult,
 }) {
   return db.Donor.upsert(donor, {
     transaction,
-    returning: true
+    returning: true,
   }).then(([donor, created]) => {
-    return new Promise(res => {
+    return new Promise((res) => {
       return db.Donation.upsert(
         {
           ...donation,
-          donorId: donor.id
+          donorId: donor.id,
         },
         {
-          transaction
+          transaction,
         }
       ).then(() =>
         res([
           ...previousResult,
-          { ...donor.toJSON(), __isNew: created, ...donation }
+          { ...donor.toJSON(), __isNew: created, ...donation },
         ])
       )
     })
@@ -293,7 +293,7 @@ function _upsertDonorInsertDonation({
 }
 
 function _insertUploadRecord({ requestBody, transaction }) {
-  const donationDateArr = requestBody.map(entry =>
+  const donationDateArr = requestBody.map((entry) =>
     Date.parse(entry['Date of Donation'])
   )
   const period = {}
@@ -322,9 +322,8 @@ function _groupDonors(results) {
   const groupById = _.groupBy(results, 'id')
   const groupedArr = _.map(groupById, (details, id) => {
     const donationCount = details.length
-    const sum = details.reduce((sum, donation) => {
-      return sum.plus(donation.donationAmount)
-    }, new BigNumber(0))
+    const donationsArr = _.map(details, (d) => d.donationAmount)
+    const sum = summation(donationsArr)
     const name = _.last(details).name
     const idNo = _.last(details).idNo
     const __isNew = _.first(details).__isNew
@@ -335,7 +334,7 @@ function _groupDonors(results) {
       name,
       totalAmount: sum,
       donationCount,
-      __isNew
+      __isNew,
     }
   })
 
@@ -343,12 +342,10 @@ function _groupDonors(results) {
 }
 
 function summary(results) {
-  const donations = _.map(results, el => el.donationAmount)
-  const totalAmt = donations.reduce((sum, donation) => {
-    return sum.plus(donation)
-  }, new BigNumber(0))
+  const donations = _.map(results, (el) => el.donationAmount)
+  const totalAmt = summation(donations)
   const totalCount = results.length
-  const dateFormatter = _.map(results, el => Date.parse(el.donationDate))
+  const dateFormatter = _.map(results, (el) => Date.parse(el.donationDate))
   const maxDate = new Date(Math.max.apply(null, dateFormatter))
   const minDate = new Date(Math.min.apply(null, dateFormatter))
 

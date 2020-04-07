@@ -4,7 +4,7 @@ const Sequelize = require('sequelize')
 const db = require('../models/index')
 const pagination = require('../middlewares/pagination')
 const _ = require('lodash')
-const BigNumber = require('bignumber.js')
+const summation = require('../lib/math')
 
 //donor list table
 router.get('/', pagination, function (req, res, next) {
@@ -216,9 +216,7 @@ const categorizedResponse = (donorResponse) => {
 //Donor Details Card response format
 function detailsFormat(donorResponse) {
   const donations = _.map(donorResponse.donations, (d) => d.donationAmount)
-  const donationSum = donations.reduce((sum, donation) => {
-    return sum.plus(donation)
-  }, new BigNumber(0))
+  const donationSum = summation(donations)
   const idNo = donorResponse.idNo
   const idType = donorResponse.idType && donorResponse.idType.description
   const salutation =
@@ -277,7 +275,7 @@ function tableFormat(donorResponse) {
       source: info.donationSource,
       mode: info.PaymentType && info.PaymentType.description,
       tax: info.taxDeductible && info.taxDeductible.description,
-      remarks: info.remarks,
+      remarks: info.remarks
     }
   })
   return tableInfo
@@ -311,9 +309,7 @@ router.get('/search', function (req, res) {
 const reformat = (donorObj) => {
   const format = (i) => {
     const donationsArr = _.map(i.donations, (e) => e.donationAmount)
-    const totalDonatedAmount = donationsArr.reduce((sum, donation) => {
-      return sum.plus(donation)
-    }, new BigNumber(0))
+    const totalDonatedAmount = summation(donationsArr)
 
     console.log(totalDonatedAmount)
     return {
