@@ -39,30 +39,36 @@ router.get('test/', function (req, res, next) {
 })
 
 router.post('/send_email', function (req, res, next) {
-  nodeMailer.createTestAccount((err, account) => {
-    const transporter = nodeMailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      secure: false,
-      auth: {
-        // should be replaced with real sender's account
-        user: account.user,
-        pass: account.pass,
-      },
-    })
-  })
+  const mailConfig = {
+    host: 'smtp.mailtrap.io',
+    port: 2525,
+    auth: {
+      user: 'e1fa9b8d5ae44b',
+      pass: 'a199dbc739b3a2',
+    },
+  }
+  const transporter = nodeMailer.createTransport(mailConfig)
 
-  let mailOptions = {
+
+  const mailOptions = {
     from: '"Info" <info@example.com>', // sender address
 
-    to: "kheiboardwarrior@gmail.com", // list of receivers
+    to: 'kheiboardwarrior@gmail.com', // list of receivers
 
-    subject: "test", // Subject line
+    subject: 'test', // Subject line
 
-    text: "hello world", // plain text body
+    text: 'hello world, its my first message sent', // plain text body
 
-    html: emailbody, // html body
+    html:
+      '<b>Hey there! </b><br> This is our first message sent with Nodemailer', // html body
   }
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+        return console.log(error);
+    }
+    console.log('Message sent: %s', info.messageId);
+});
 })
 
 module.exports = router
