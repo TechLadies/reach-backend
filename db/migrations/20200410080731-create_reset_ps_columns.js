@@ -11,7 +11,7 @@ module.exports = {
       queryInterface.addColumn(
         'Users',
         'resetPasswordExpiry',
-        Sequelize.STRING
+        Sequelize.DATE
       )
     ])
   },

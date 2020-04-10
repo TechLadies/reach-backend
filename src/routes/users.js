@@ -4,6 +4,7 @@ const debug = require('debug')('app:users')
 const db = require('../models/index')
 const nodeMailer = require('nodemailer')
 const crypto = require('crypto')
+const bcrypt = require('bcrypt')
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
@@ -40,10 +41,10 @@ router.get('test/', function (req, res, next) {
 })
 module.exports = router
 
-router.post('/send_email', function (req, res, next) {
+router.post('/reset_password_email', function (req, res, next) {
   //  user by email
   db.User.findOne({
-    where: { email: req.body.email }
+    where: { email: req.body.email },
   })
     .then((user) => generateStoreSendToken(user))
     .catch((err) => console.log(err))
@@ -61,7 +62,7 @@ router.post('/send_email', function (req, res, next) {
           },
           {
             where: { id: user.id },
-            returning: true
+            returning: true,
           }
         )
           .then(([, updated]) => {
@@ -81,7 +82,7 @@ router.post('/send_email', function (req, res, next) {
       port: 2525,
       auth: {
         user: 'e1fa9b8d5ae44b',
-        pass: 'a199dbc739b3a2'
+        pass: 'a199dbc739b3a2',
       },
     }
     const transporter = nodeMailer.createTransport(mailConfig)
@@ -95,11 +96,22 @@ router.post('/send_email', function (req, res, next) {
         url:
           'http://localhost:3000/reset_password?token=' +
           user.resetPasswordToken,
-        name: user.firstName
+        name: user.firstName,
       },
       // text: `Dear , you have requested for a password reset. Please click on the password reset link`, // plain text body
 
-      html: `<b>Dear ${user.firstName} </b><br> you have requested for a password reset. Please click on the password reset link : http://localhost:3000/reset_password?token= + ${user.resetPasswordToken}`, // html body
+      html: `<body>
+      <div>
+          <h3>Dear ${user.firstName},</h3>
+          <p>You requested for a password reset, kindly use this
+           <a href="http://reach-fronted.herokuapp.com/reset_password?token=${user.resetPassswordToken}">link</a>
+            to reset your password
+          </p>
+          <br>
+          <p>Cheers!</p>
+      </div>
+     
+  </body>`,
     }
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -109,6 +121,42 @@ router.post('/send_email', function (req, res, next) {
         })
       } else {
         return console.log(error)
+      }
+    })
+  }
+})
+
+router.post('/reset_password', function (req, res, next) {
+  const { token, password1, password2 } = req.body
+  const bcryptedPassword = bcrypt.hashSync(password1, bcrypt.genSaltSync())
+  console.log(token)
+  if (!password1 && !password2) {
+    return res.status(204).json({
+      message: 'Oops! Please check that you have entered both passwords field'
+    })
+  }
+  if (password1 !== password2) {
+    return res
+      .status(204)
+      .json({ message: 'Oops! The passwords you entered do not match' })
+  }
+
+  if (password1 === password2) {
+    return db.User.findOne({
+      where: { resetPasswordToken: token },
+    }).then((result) => {
+      if (result.resetPasswordExpiry <= Date.now()) {
+        return res.status(204).json({
+          message:
+            'Token has expired. Please request for password reset email again',
+        })
+      } else {
+        return db.User.update(
+          {
+            passwordHash: bcryptedPassword
+          },
+          { where: { resetPasswordToken: token }, returning: true }
+        ).then(([, updated]) => res.json(updated))
       }
     })
   }
