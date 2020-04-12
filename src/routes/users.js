@@ -58,7 +58,7 @@ router.post('/reset_password_email', function (req, res, next) {
         return db.User.update(
           {
             resetPasswordToken: token,
-            resetPasswordExpiry: Date.now() + 86400000,
+            resetPasswordExpiry: Date.now() + 1,
           },
           {
             where: { id: user.id },
@@ -68,7 +68,7 @@ router.post('/reset_password_email', function (req, res, next) {
           .then(([, updated]) => {
             sendEmail(updated[0])
           })
-          .catch((err) => console.log(err))
+          .catch((err) => res.send(err))
       })
     } else if (!user) {
       return res.status(404).send('User not found')
@@ -98,8 +98,6 @@ router.post('/reset_password_email', function (req, res, next) {
           user.resetPasswordToken,
         name: user.firstName,
       },
-      // text: `Dear , you have requested for a password reset. Please click on the password reset link`, // plain text body
-
       html: `<body>
       <div>
           <h3>Dear ${user.firstName},</h3>
@@ -149,6 +147,14 @@ router.put('/reset_password', function (req, res, next) {
       where: { resetPasswordToken: token },
     })
       .then((result) => {
+        if (!result) {
+          return res
+            .status(401)
+            .json({
+              message:
+                'Invalid token. Please request for password reset email again',
+            })
+        }
         if (result.resetPasswordExpiry <= Date.now()) {
           return res.status(401).json({
             message:
