@@ -47,7 +47,7 @@ router.post('/reset_password_email', function (req, res, next) {
     where: { email: req.body.email },
   })
     .then((user) => generateStoreSendToken(user))
-    .catch((err) => console.log(err))
+    .catch((err) => res.send(err))
 
   // if user exist, generate and store token in User table
   function generateStoreSendToken(user) {
@@ -70,8 +70,8 @@ router.post('/reset_password_email', function (req, res, next) {
           })
           .catch((err) => console.log(err))
       })
-    } else {
-      user = { value: 'User does not exist' }
+    } else if (!user) {
+      return res.status(404).send('User not found')
     }
   }
 
@@ -103,9 +103,10 @@ router.post('/reset_password_email', function (req, res, next) {
       html: `<body>
       <div>
           <h3>Dear ${user.firstName},</h3>
+          <br>
           <p>You requested for a password reset, kindly use this
            <a href="http://reach-fronted.herokuapp.com/reset_password?token=${user.resetPassswordToken}">link</a>
-            to reset your password
+            to reset your password. This link is valid for one day.
           </p>
           <br>
           <p>Cheers!</p>
@@ -120,44 +121,50 @@ router.post('/reset_password_email', function (req, res, next) {
           message: `${info.messageId} sent! Kindly check your email for further instructions`,
         })
       } else {
-        return console.log(error)
+        return res.status(500).json({
+          message:
+            'Failed to send reset password email. Please try again or contact your admin if the issue persist',
+        })
       }
     })
   }
 })
 
-router.post('/reset_password', function (req, res, next) {
+router.put('/reset_password', function (req, res, next) {
   const { token, password1, password2 } = req.body
   const bcryptedPassword = bcrypt.hashSync(password1, bcrypt.genSaltSync())
-  console.log(token)
   if (!password1 && !password2) {
-    return res.status(204).json({
-      message: 'Oops! Please check that you have entered both passwords field'
+    return res.status(422).json({
+      message: 'Oops! Please check that you have entered both passwords field',
     })
   }
   if (password1 !== password2) {
     return res
-      .status(204)
+      .status(422)
       .json({ message: 'Oops! The passwords you entered do not match' })
   }
 
   if (password1 === password2) {
     return db.User.findOne({
       where: { resetPasswordToken: token },
-    }).then((result) => {
-      if (result.resetPasswordExpiry <= Date.now()) {
-        return res.status(204).json({
-          message:
-            'Token has expired. Please request for password reset email again',
-        })
-      } else {
-        return db.User.update(
-          {
-            passwordHash: bcryptedPassword
-          },
-          { where: { resetPasswordToken: token }, returning: true }
-        ).then(([, updated]) => res.json(updated))
-      }
     })
+      .then((result) => {
+        if (result.resetPasswordExpiry <= Date.now()) {
+          return res.status(401).json({
+            message:
+              'Token has expired. Please request for password reset email again',
+          })
+        } else {
+          return db.User.update(
+            {
+              passwordHash: bcryptedPassword,
+            },
+            { where: { resetPasswordToken: token }, returning: true }
+          )
+            .then(([, updated]) => res.json(updated))
+            .catch((err) => res.send(err))
+        }
+      })
+      .catch((err) => res.send(err))
   }
 })
