@@ -58,7 +58,7 @@ router.post('/reset_password_email', function (req, res, next) {
         return db.User.update(
           {
             resetPasswordToken: token,
-            resetPasswordExpiry: Date.now() + 1,
+            resetPasswordExpiry: Date.now() + 86400000,
           },
           {
             where: { id: user.id },
