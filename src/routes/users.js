@@ -131,7 +131,7 @@ router.post('/reset_password_email', function (req, res, next) {
 router.put('/reset_password', function (req, res, next) {
   const { token, password1, password2 } = req.body
   const bcryptedPassword = bcrypt.hashSync(password1, bcrypt.genSaltSync())
-  if (!password1 && !password2) {
+  if (!password1 || !password2) {
     return res.status(422).json({
       message: 'Oops! Please check that you have entered both passwords field',
     })
