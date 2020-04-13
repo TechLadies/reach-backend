@@ -39,12 +39,12 @@ router.get('test/', function (req, res, next) {
     res.json(users)
   })
 })
-module.exports = router
+
 
 router.post('/reset_password_email', function (req, res, next) {
   //  user by email
   db.User.findOne({
-    where: { email: req.body.email },
+    where: { email: req.body.email }
   })
     .then((user) => generateStoreSendToken(user))
     .catch((err) => res.send(err))
@@ -58,7 +58,7 @@ router.post('/reset_password_email', function (req, res, next) {
         return db.User.update(
           {
             resetPasswordToken: token,
-            resetPasswordExpiry: Date.now() + 86400000,
+            resetPasswordExpiry: Date.now() + oneDay
           },
           {
             where: { id: user.id },
@@ -116,12 +116,12 @@ router.post('/reset_password_email', function (req, res, next) {
     transporter.sendMail(mailOptions, (error, info) => {
       if (!error) {
         return res.json({
-          message: `${info.messageId} sent! Kindly check your email for further instructions`,
+          message: `Kindly check your email for further instructions`,
         })
       } else {
         return res.status(500).json({
           message:
-            'Failed to send reset password email. Please try again or contact your admin if the issue persist',
+            'Oops there is an error...Please try again or contact your admin if the issue persist',
         })
       }
     })
@@ -167,10 +167,17 @@ router.put('/reset_password', function (req, res, next) {
             },
             { where: { resetPasswordToken: token }, returning: true }
           )
-            .then(([, updated]) => res.json(updated))
+            .then(([, updated]) => {
+              if (updated) {
+                res.status(200).json({message: 'Password reset complete'})
+              }
+            })
             .catch((err) => res.send(err))
         }
       })
       .catch((err) => res.send(err))
   }
 })
+
+const oneDay = 86400000
+module.exports = router
