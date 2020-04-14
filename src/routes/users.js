@@ -103,7 +103,7 @@ router.post('/reset_password_email', function (req, res, next) {
           <h3>Dear ${user.firstName},</h3>
           <br>
           <p>You requested for a password reset, kindly use this
-           <a href="http://reach-fronted.herokuapp.com/reset_password?token=${user.resetPassswordToken}">link</a>
+           <a href="http://reach-frontend.herokuapp.com/reset-password?token=${user.resetPassswordToken}">link</a>
             to reset your password. This link is valid for one day.
           </p>
           <br>
@@ -130,7 +130,6 @@ router.post('/reset_password_email', function (req, res, next) {
 
 router.put('/reset_password', function (req, res, next) {
   const { token, password1, password2 } = req.body
-  const bcryptedPassword = bcrypt.hashSync(password1, bcrypt.genSaltSync())
   if (!password1 || !password2) {
     return res.status(422).json({
       message: 'Oops! Please check that you have entered both passwords field',
@@ -161,9 +160,10 @@ router.put('/reset_password', function (req, res, next) {
               'Token has expired. Please request for password reset email again',
           })
         } else {
+          const bcryptedPassword = bcrypt.hashSync(password1, bcrypt.genSaltSync())
           return db.User.update(
             {
-              passwordHash: bcryptedPassword,
+              passwordHash: bcryptedPassword
             },
             { where: { resetPasswordToken: token }, returning: true }
           )
