@@ -81,8 +81,8 @@ router.post('/reset_password_email', function (req, res, next) {
       host: 'smtp.mailtrap.io',
       port: 2525,
       auth: {
-        user: 'e1fa9b8d5ae44b',
-        pass: 'a199dbc739b3a2',
+        user: process.env.NODEMAILER_USER,
+        pass: process.env.NODEMAILER_PASSWORD
       },
     }
     const transporter = nodeMailer.createTransport(mailConfig)
