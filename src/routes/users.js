@@ -40,11 +40,10 @@ router.get('test/', function (req, res, next) {
   })
 })
 
-
 router.post('/reset_password_email', function (req, res, next) {
   //  user by email
   db.User.findOne({
-    where: { email: req.body.email }
+    where: { email: req.body.email },
   })
     .then((user) => generateStoreSendToken(user))
     .catch((err) => res.send(err))
@@ -58,7 +57,7 @@ router.post('/reset_password_email', function (req, res, next) {
         return db.User.update(
           {
             resetPasswordToken: token,
-            resetPasswordExpiry: Date.now() + oneDay
+            resetPasswordExpiry: Date.now() + oneDay,
           },
           {
             where: { id: user.id },
@@ -71,7 +70,7 @@ router.post('/reset_password_email', function (req, res, next) {
           .catch((err) => res.send(err))
       })
     } else if (!user) {
-      return res.status(404).send('User not found')
+      return res.status(404).json({ message: 'User not found' })
     }
   }
 
@@ -82,7 +81,7 @@ router.post('/reset_password_email', function (req, res, next) {
       port: 2525,
       auth: {
         user: process.env.NODEMAILER_USER,
-        pass: process.env.NODEMAILER_PASSWORD
+        pass: process.env.NODEMAILER_PASSWORD,
       },
     }
     const transporter = nodeMailer.createTransport(mailConfig)
@@ -147,12 +146,10 @@ router.put('/reset_password', function (req, res, next) {
     })
       .then((result) => {
         if (!result) {
-          return res
-            .status(401)
-            .json({
-              message:
-                'Invalid token. Please request for password reset email again',
-            })
+          return res.status(401).json({
+            message:
+              'Invalid token. Please request for password reset email again',
+          })
         }
         if (result.resetPasswordExpiry <= Date.now()) {
           return res.status(401).json({
@@ -160,16 +157,19 @@ router.put('/reset_password', function (req, res, next) {
               'Token has expired. Please request for password reset email again',
           })
         } else {
-          const bcryptedPassword = bcrypt.hashSync(password1, bcrypt.genSaltSync())
+          const bcryptedPassword = bcrypt.hashSync(
+            password1,
+            bcrypt.genSaltSync()
+          )
           return db.User.update(
             {
-              passwordHash: bcryptedPassword
+              passwordHash: bcryptedPassword,
             },
             { where: { resetPasswordToken: token }, returning: true }
           )
             .then(([, updated]) => {
               if (updated) {
-                res.status(200).json({message: 'Password reset complete'})
+                res.status(200).json({ message: 'Password reset complete' })
               }
             })
             .catch((err) => res.send(err))
