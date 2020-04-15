@@ -102,7 +102,7 @@ router.post('/reset_password_email', function (req, res, next) {
           <h3>Dear ${user.firstName},</h3>
           <br>
           <p>You requested for a password reset, kindly use this
-           <a href="http://reach-frontend.herokuapp.com/reset-password?token=${user.resetPassswordToken}">link</a>
+           <a href="http://reach-frontend.herokuapp.com/reset-password?token=${user.resetPasswordToken}">link</a>
             to reset your password. This link is valid for one day.
           </p>
           <br>
@@ -154,7 +154,7 @@ router.put('/reset_password', function (req, res, next) {
         if (result.resetPasswordExpiry <= Date.now()) {
           return res.status(401).json({
             message:
-              'Token has expired. Please request for password reset email again',
+              'Token has expired. Please request for password reset email again'
           })
         } else {
           const bcryptedPassword = bcrypt.hashSync(
@@ -164,6 +164,7 @@ router.put('/reset_password', function (req, res, next) {
           return db.User.update(
             {
               passwordHash: bcryptedPassword,
+              resetPasswordExpiry: Date.now()
             },
             { where: { resetPasswordToken: token }, returning: true }
           )
