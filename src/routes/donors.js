@@ -162,11 +162,7 @@ router.post('/details', function (req, res, next) {
         include: [
           {
             model: db.Source,
-<<<<<<< HEAD
-            attributes: ['description']we
-=======
             attributes: ['description'],
->>>>>>> b16e018b18582311c529452bfd1eab4105df5817
           },
           {
             model: db.PaymentType,
