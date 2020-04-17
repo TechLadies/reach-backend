@@ -170,7 +170,7 @@ router.post('/details', function(req, res, next) {
         include: [
           {
             model: db.Source,
-            attributes: ['description']
+            attributes: ['description']we
           },
           {
             model: db.PaymentType,
