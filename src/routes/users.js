@@ -46,7 +46,7 @@ router.post('/reset_password_email', function (req, res, next) {
     where: { email: req.body.email },
   })
     .then((user) => generateStoreSendToken(user))
-    .catch((err) => res.send(err))
+    .catch((err) => console.log(err))
 
   // if user exist, generate and store token in User table
   function generateStoreSendToken(user) {
@@ -67,7 +67,7 @@ router.post('/reset_password_email', function (req, res, next) {
           .then(([, updated]) => {
             sendEmail(updated[0])
           })
-          .catch((err) => res.send(err))
+          .catch((err) => console.log(err))
       })
     } else if (!user) {
       return res.status(404).json({ message: 'User not found' })
@@ -118,6 +118,7 @@ router.post('/reset_password_email', function (req, res, next) {
           message: `Kindly check your email for further instructions`,
         })
       } else {
+        console.log(error)
         return res.status(500).json({
           message:
             'Oops there is an error...Please try again or contact your admin if the issue persist',
@@ -173,10 +174,10 @@ router.put('/reset_password', function (req, res, next) {
                 res.status(200).json({ message: 'Password reset complete' })
               }
             })
-            .catch((err) => res.send(err))
+            .catch((err) => console.log(err))
         }
       })
-      .catch((err) => res.send(err))
+      .catch((err) => console.log(err))
   }
 })
 
