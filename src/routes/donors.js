@@ -119,7 +119,7 @@ router.put('/edit/:idNo', (req, res) => {
   const { remarks, preferredContact, dnc } = req.body
   if (!remarks && !preferredContact && !('dnc' in req.body)) {
     return res.status(204).json({
-      message: 'You have not sent any parameters for updating',
+      message: 'You have not sent any parameters for updating'
     })
   }
   try {
@@ -275,7 +275,7 @@ function tableFormat(donorResponse) {
       source: info.donationSource,
       mode: info.PaymentType && info.PaymentType.description,
       tax: info.taxDeductible && info.taxDeductible.description,
-      remarks: info.remarks
+      remarks: info.remarks,
     }
   })
   return tableInfo
@@ -318,7 +318,7 @@ const reformat = (donorObj) => {
       contactNo: i.contactNo,
       email: i.email,
       dnc: i.dnc,
-      totalDonatedAmount
+      totalDonatedAmount,
     }
   }
   const reformatArr = _.map(donorObj, format)

@@ -10,7 +10,9 @@ module.exports = (sequelize, DataTypes) => {
       lastName: DataTypes.STRING,
       email: DataTypes.STRING,
       passwordHash: DataTypes.STRING,
-      contactNo: DataTypes.STRING
+      contactNo: DataTypes.STRING,
+      resetPasswordToken: DataTypes.STRING,
+      resetPasswordExpiry: DataTypes.DATE
     },
     {
       hooks: {
