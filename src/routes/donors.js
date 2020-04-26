@@ -16,11 +16,10 @@ router.get('/', function (req, res, next) {
   const thisYear = now.getFullYear()
   const thisMonth = now.getMonth()
   const thisDate = now.getDate()
-  // const {
-  //   from = new Date(thisYear, 0, 1).toISOString(),
-  //   to = new Date(thisYear, thisMonth, thisDate).toISOString(),
-  //   page = 1
-  // } = req.query;
+  const {
+    from = new Date(thisYear, 0, 1).toISOString(),
+    to = new Date(thisYear, thisMonth, thisDate).toISOString(),
+  } = req.query
 
   //   try {
   //     const donors = await db.Donor.findAll({
@@ -60,12 +59,12 @@ router.get('/', function (req, res, next) {
           {
             model: db.Donation,
             as: 'donations',
-            // where: {
-            //   donationDate: {
-            //     [Sequelize.Op.between]: [new Date(from), new Date(to)
-            // ]
-            //   }
-            // },
+            where: {
+              donationDate: {
+                [Sequelize.Op.between]: [new Date(from), new Date(to)
+            ]
+              }
+            },
             // include: [
             //   {
             //     model: db.Source
