@@ -7,9 +7,9 @@ const _ = require('lodash')
 const summation = require('../lib/math')
 
 //donor list table
-router.get('/', pagination, function (req, res, next) {
-  let offset = req.customParams.offset
-  let limit = req.customParams.limit
+router.get('/', function (req, res, next) {
+ /*  let offset = req.customParams.offset
+  let limit = req.customParams.limit */
 
   var donor = db.Donor
   const now = new Date()
@@ -42,8 +42,8 @@ router.get('/', pagination, function (req, res, next) {
   try {
     donor
       .findAll({
-        limit: limit,
-        offset: offset,
+        /* limit: limit,
+        offset: offset, */
         // where (for advanced filters)
         attributes: [
           'idNo',
@@ -80,8 +80,8 @@ router.get('/', pagination, function (req, res, next) {
       .then((donorObj) => {
         res.json({
           data: donorObj,
-          perPage: limit,
-          offset: offset,
+ /*          perPage: limit,
+          offset: offset, */
         })
       })
   } catch (err) {
