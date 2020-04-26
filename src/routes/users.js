@@ -3,6 +3,7 @@ const router = express.Router()
 const debug = require('debug')('app:users')
 const db = require('../models/index')
 const nodeMailer = require('nodemailer')
+const sgTransport = require('nodemailer-sendgrid-transport')
 const crypto = require('crypto')
 const bcrypt = require('bcrypt')
 
@@ -76,17 +77,25 @@ router.post('/reset_password_email', function (req, res, next) {
 
   // send email with token to the user
   function sendEmail(user) {
-    const mailConfig = {
+    const options = {
+      service: 'Sendgrid',
+      authentication: 'plain',
+      auth: {
+        api_key: process.env.SENDGRID_ADMIN_EMAIL_API_KEY
+      }
+    }
+    /*  const mailConfig = {
       host: 'smtp.mailtrap.io',
       port: 2525,
       auth: {
         user: process.env.NODEMAILER_USER,
         pass: process.env.NODEMAILER_PASSWORD,
       },
-    }
-    const transporter = nodeMailer.createTransport(mailConfig)
+    } */
+    /*  const transporter = nodeMailer.createTransport(mailConfig) */
+    const transporter = nodeMailer.createTransport(sgTransport(options))
     const mailOptions = {
-      from: '"Info" <info@example.com>', // sender address
+      from: `"REACH admin" <${process.env.SENDGRID_ADMIN_EMAIL}>`, // sender address
 
       to: user.email, // list of receivers
 
@@ -155,7 +164,7 @@ router.put('/reset_password', function (req, res, next) {
         if (result.resetPasswordExpiry <= Date.now()) {
           return res.status(401).json({
             message:
-              'Token has expired. Please request for password reset email again'
+              'Token has expired. Please request for password reset email again',
           })
         } else {
           const bcryptedPassword = bcrypt.hashSync(
@@ -165,7 +174,7 @@ router.put('/reset_password', function (req, res, next) {
           return db.User.update(
             {
               passwordHash: bcryptedPassword,
-              resetPasswordExpiry: Date.now()
+              resetPasswordExpiry: Date.now(),
             },
             { where: { resetPasswordToken: token }, returning: true }
           )
