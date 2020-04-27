@@ -8,7 +8,7 @@ const summation = require('../lib/math')
 
 //donor list table
 router.get('/', function (req, res, next) {
- /*  let offset = req.customParams.offset
+  /*  let offset = req.customParams.offset
   let limit = req.customParams.limit */
 
   var donor = db.Donor
@@ -19,6 +19,12 @@ router.get('/', function (req, res, next) {
   const {
     from = new Date(thisYear, 0, 1).toISOString(),
     to = new Date(thisYear, thisMonth, thisDate).toISOString(),
+    taxDeduc,
+    minAmt,
+    maxAmt,
+    s1,
+    s2,
+    s3,
   } = req.query
 
   //   try {
@@ -44,42 +50,46 @@ router.get('/', function (req, res, next) {
         /* limit: limit,
         offset: offset, */
         // where (for advanced filters)
-        attributes: [
-          'idNo',
-          'name',
-          'contactNo',
-          'email',
-          'dnc',
-          [
-            Sequelize.fn('SUM', Sequelize.col('donationAmount')),
-            'totalAmountDonated',
-          ],
-        ],
+        attributes: ['idNo', 'name', 'contactNo', 'email', 'dnc'],
         include: [
           {
             model: db.Donation,
             as: 'donations',
+            attributes: [
+              'donationAmount',
+              'donationDate',
+              'taxDeductible' /* ,[
+              Sequelize.fn('SUM', Sequelize.col('donationAmount')),
+              'totalAmountDonated'
+            ] */,
+            ],
             where: {
               donationDate: {
-                [Sequelize.Op.between]: [new Date(from), new Date(to)
-            ]
-              }
+                [Sequelize.Op.between]: [new Date(from), new Date(to)],
+              },
+              taxDeductible: taxDeduc, // hardcoded temporarily
+              donationAmount: {
+                [Sequelize.Op.between]: [minAmt, maxAmt] //hardcoded temporarily
+              },
             },
-            // include: [
-            //   {
-            //     model: db.Source
-            //   }
-            // ]
-            attributes: [],
+            include: [
+              {
+                model: db.Source,
+                attributes: ['id', 'description'],
+                where: {
+                  description: [s1, s2, s3], // this is hardcoded temporarily
+                },
+              },
+            ],
           },
         ],
-        group: ['Donor.id'],
+        group: ['Donor.id', 'donations->Source.id', 'donations.id'],
         subQuery: false,
       })
       .then((donorObj) => {
         res.json({
           data: donorObj,
- /*          perPage: limit,
+          /*          perPage: limit,
           offset: offset, */
         })
       })
@@ -87,6 +97,8 @@ router.get('/', function (req, res, next) {
     res.status(500).json(err)
   }
 })
+
+const filter = () => {}
 
 router.get('/count', function (req, res, next) {
   db.Donor.count().then((count) => {
@@ -118,7 +130,7 @@ router.put('/edit/:idNo', (req, res) => {
   const { remarks, preferredContact, dnc } = req.body
   if (!remarks && !preferredContact && !('dnc' in req.body)) {
     return res.status(204).json({
-      message: 'You have not sent any parameters for updating'
+      message: 'You have not sent any parameters for updating',
     })
   }
   try {
