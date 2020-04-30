@@ -16,40 +16,43 @@ router.get('/', function (req, res, next) {
   const thisYear = now.getFullYear()
   const thisMonth = now.getMonth()
   const thisDate = now.getDate()
+  
   const {
-    from = new Date(thisYear, 0, 1).toISOString(),
-    to = new Date(thisYear, thisMonth, thisDate).toISOString(),
+    from,
+    to,
     taxDeduc,
     minAmt,
     maxAmt,
-    s1,
-    s2,
-    s3,
+    sourceQuery
   } = req.query
-
-  //   try {
-  //     const donors = await db.Donor.findAll({
-  //       limit: limit,
-  //       offset: offset,
-  //       order: [["id", "ASC"]]
-  //     });
-  //     res.json({
-  //       data: donors,
-  //       perPage: limit,
-  //       offset: offset
-  //     });
-  //   } catch (err) {
-  //     console.log(err);
-  //     res.status(500).json(err);
-  //   }
-  // });
+  
 
   try {
+    const donorParams = {}
+    if (from && to) {
+      donorParams.from = from 
+      donorParams.to = to
+    } else {
+      return res.status(422).json({
+        message: 'Please enter both from and to date'
+      })
+    }
+    if ('taxDeduc' in req.query) {
+      donorParams.taxDeduc = taxDeduc
+      const taxDeductible = {taxDeductible : donorParams.taxDeduc}
+    }
+    if (minAmt>0) {
+      donorParams.minAmt = minAmt
+    }
+    if (maxAmt>0){
+      donorParams.maxAmt = maxAmt
+    }
+    if (sourceQuery.length > 0) {
+      donorParams.sourceQuery = sourceQuery
+    }
+    console.log(donorParams)
     donor
       .findAll({
-        /* limit: limit,
-        offset: offset, */
-        // where (for advanced filters)
         attributes: ['idNo', 'name', 'contactNo', 'email', 'dnc'],
         include: [
           {
@@ -65,11 +68,11 @@ router.get('/', function (req, res, next) {
             ],
             where: {
               donationDate: {
-                [Sequelize.Op.between]: [new Date(from), new Date(to)],
+                [Sequelize.Op.between]: [new Date(donorParams.from), new Date(donorParams.to)],
               },
-              taxDeductible: taxDeduc, // hardcoded temporarily
-              donationAmount: {
-                [Sequelize.Op.between]: [minAmt, maxAmt] //hardcoded temporarily
+              taxDeductible:donorParams.taxDeduc, 
+              donationAmount: /* (donorParams.minAmt || donorParams.maxAmt) && */ {
+                [Sequelize.Op.between]: [donorParams.minAmt, donorParams.maxAmt] 
               },
             },
             include: [
@@ -77,10 +80,10 @@ router.get('/', function (req, res, next) {
                 model: db.Source,
                 attributes: ['id', 'description'],
                 where: {
-                  description: [s1, s2, s3], // this is hardcoded temporarily
+                  description: sourceQuery 
                 },
               },
-            ],
+            ]
           },
         ],
         group: ['Donor.id', 'donations->Source.id', 'donations.id'],
@@ -89,8 +92,6 @@ router.get('/', function (req, res, next) {
       .then((donorObj) => {
         res.json({
           data: donorObj,
-          /*          perPage: limit,
-          offset: offset, */
         })
       })
   } catch (err) {
@@ -98,7 +99,6 @@ router.get('/', function (req, res, next) {
   }
 })
 
-const filter = () => {}
 
 router.get('/count', function (req, res, next) {
   db.Donor.count().then((count) => {
