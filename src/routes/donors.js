@@ -10,13 +10,6 @@ const summation = require('../lib/math')
 router.get('/', function (req, res, next) {
   /*  let offset = req.customParams.offset
   let limit = req.customParams.limit */
-
-  var donor = db.Donor
-  const now = new Date()
-  const thisYear = now.getFullYear()
-  const thisMonth = now.getMonth()
-  const thisDate = now.getDate()
-  
   const {
     from,
     to,
@@ -26,31 +19,60 @@ router.get('/', function (req, res, next) {
     sourceQuery
   } = req.query
   
-
-  try {
-    const donorParams = {}
-    if (from && to) {
-      donorParams.from = from 
-      donorParams.to = to
-    } else {
-      return res.status(422).json({
-        message: 'Please enter both from and to date'
-      })
+  const donationConditions= {where: {}}
+  const sourceConditions = {where: {}}
+  if (from && to) {
+    donationConditions.where.donationDate = {[Sequelize.Op.between]: [new Date(from), new Date(to)]}
+    
+  } else {
+    return res.status(422).json({
+      message: 'Please enter both from and to date'
+    })
+  }
+  if ('taxDeduc' in req.query) {
+    donationConditions.where.taxDeductible = taxDeduc
+  }
+  if (minAmt > 0 && maxAmt > minAmt) {
+    donationConditions.where.donationAmount = {
+      [Sequelize.Op.between] : [minAmt, maxAmt]
     }
-    if ('taxDeduc' in req.query) {
-      donorParams.taxDeduc = taxDeduc
-      const taxDeductible = {taxDeductible : donorParams.taxDeduc}
-    }
-    if (minAmt>0) {
-      donorParams.minAmt = minAmt
-    }
-    if (maxAmt>0){
-      donorParams.maxAmt = maxAmt
-    }
-    if (sourceQuery.length > 0) {
-      donorParams.sourceQuery = sourceQuery
-    }
-    console.log(donorParams)
+  }
+  if (sourceQuery && sourceQuery.length > 0) {
+    sourceConditions.where.description = sourceQuery
+  } 
+  console.log(donationConditions)
+  console.log(sourceConditions)
+  
+ return db.Donor.findAll({
+  attributes: ['idNo', 'name', 'contactNo', 'email', 'dnc'],
+  include: [
+    {
+      model: db.Donation,
+      as: 'donations',
+      attributes: [
+        'donationAmount',
+        'donationDate',
+        'taxDeductible',
+      ],
+      donationConditions,
+      include: [
+        {
+          model: db.Source,
+          attributes: ['id', 'description'],
+          sourceConditions,
+        },
+      ]
+    },
+  ],
+  group: ['Donor.id', 'donations->Source.id', 'donations.id'],
+  subQuery: false,
+})
+.then((donorObj) => {
+  res.json({
+    data: donorObj,
+  })
+})
+  /* try {
     donor
       .findAll({
         attributes: ['idNo', 'name', 'contactNo', 'email', 'dnc'],
@@ -61,27 +83,14 @@ router.get('/', function (req, res, next) {
             attributes: [
               'donationAmount',
               'donationDate',
-              'taxDeductible' /* ,[
-              Sequelize.fn('SUM', Sequelize.col('donationAmount')),
-              'totalAmountDonated'
-            ] */,
+              'taxDeductible',
             ],
-            where: {
-              donationDate: {
-                [Sequelize.Op.between]: [new Date(donorParams.from), new Date(donorParams.to)],
-              },
-              taxDeductible:donorParams.taxDeduc, 
-              donationAmount: /* (donorParams.minAmt || donorParams.maxAmt) && */ {
-                [Sequelize.Op.between]: [donorParams.minAmt, donorParams.maxAmt] 
-              },
-            },
+            donationConditions,
             include: [
               {
                 model: db.Source,
                 attributes: ['id', 'description'],
-                where: {
-                  description: sourceQuery 
-                },
+                sourceConditions,
               },
             ]
           },
@@ -96,7 +105,7 @@ router.get('/', function (req, res, next) {
       })
   } catch (err) {
     res.status(500).json(err)
-  }
+  } */
 })
 
 
