@@ -19,10 +19,10 @@ router.get('/', function (req, res, next) {
     sourceQuery
   } = req.query
   
-  const donationConditions= {where: {}}
-  const sourceConditions = {where: {}}
+  const donationConditions=  {}
+  const sourceConditions = {}
   if (from && to) {
-    donationConditions.where.donationDate = {[Sequelize.Op.between]: [new Date(from), new Date(to)]}
+    donationConditions.donationDate = {[Sequelize.Op.between]: [new Date(from), new Date(to)]}
     
   } else {
     return res.status(422).json({
@@ -30,15 +30,15 @@ router.get('/', function (req, res, next) {
     })
   }
   if ('taxDeduc' in req.query) {
-    donationConditions.where.taxDeductible = taxDeduc
+    donationConditions.taxDeductible = taxDeduc
   }
   if (minAmt > 0 && maxAmt > minAmt) {
-    donationConditions.where.donationAmount = {
+    donationConditions.donationAmount = {
       [Sequelize.Op.between] : [minAmt, maxAmt]
     }
   }
   if (sourceQuery && sourceQuery.length > 0) {
-    sourceConditions.where.description = sourceQuery
+    sourceConditions.description = sourceQuery
   } 
   console.log(donationConditions)
   console.log(sourceConditions)
@@ -54,12 +54,12 @@ router.get('/', function (req, res, next) {
         'donationDate',
         'taxDeductible',
       ],
-      donationConditions,
+      where: donationConditions,
       include: [
         {
           model: db.Source,
           attributes: ['id', 'description'],
-          sourceConditions,
+          where: sourceConditions
         },
       ]
     },
