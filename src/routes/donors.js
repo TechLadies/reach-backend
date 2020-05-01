@@ -68,46 +68,21 @@ router.get('/', function (req, res, next) {
   subQuery: false,
 })
 .then((donorObj) => {
-  res.json({
-    data: donorObj,
-  })
+  res.json(
+    donorListFormat(donorObj)
+  )
 })
-  /* try {
-    donor
-      .findAll({
-        attributes: ['idNo', 'name', 'contactNo', 'email', 'dnc'],
-        include: [
-          {
-            model: db.Donation,
-            as: 'donations',
-            attributes: [
-              'donationAmount',
-              'donationDate',
-              'taxDeductible',
-            ],
-            donationConditions,
-            include: [
-              {
-                model: db.Source,
-                attributes: ['id', 'description'],
-                sourceConditions,
-              },
-            ]
-          },
-        ],
-        group: ['Donor.id', 'donations->Source.id', 'donations.id'],
-        subQuery: false,
-      })
-      .then((donorObj) => {
-        res.json({
-          data: donorObj,
-        })
-      })
-  } catch (err) {
-    res.status(500).json(err)
-  } */
 })
 
+function donorListFormat (data) {
+  const extractDonationAmt = data.map(d => d.donations.map($ => parseFloat($.donationAmount)))
+  const sumDonationAmt = extractDonationAmt.map((s,i) => {
+   return {totalAmountDonated : summation(s)}
+  })
+  const merge = _.zip(data, sumDonationAmt)
+ 
+  return merge
+ }
 
 router.get('/count', function (req, res, next) {
   db.Donor.count().then((count) => {
