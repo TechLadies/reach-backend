@@ -5,12 +5,25 @@ const db = require("../models/index");
 const pagination = require("../middlewares/pagination");
 const _ = require("lodash");
 const summation = require("../lib/math");
-const BigNumber = require('bignumber.js')
+const BigNumber = require("bignumber.js");
 //donor list table
 router.get("/", function (req, res, next) {
   const { from, to, taxDeduc, minAmt, maxAmt, source } = req.query;
   const donationConditions = {};
   const sourceConditions = {};
+
+  const minAmtNum = minAmt ? BigNumber(minAmt) : BigNumber(0);
+  const maxAmtNum = maxAmt ? BigNumber(maxAmt) : BigNumber(Infinity);
+  if (minAmtNum.isNaN() || maxAmtNum.isNaN()) {
+    return res.status(422).json({
+      message: "minAmt and/ or maxAmt is not a number",
+    });
+  }
+  if (minAmtNum.isGreaterThan(maxAmtNum)) {
+    return res.status(422).json({
+      message: "minAmt is more than maxAmt"
+    })
+  }
 
   if (from && to) {
     donationConditions.donationDate = {
@@ -46,61 +59,37 @@ router.get("/", function (req, res, next) {
     ],
     group: ["Donor.id", "donations->Source.id", "donations.id"],
     subQuery: false,
-  }).then((donorObj) => {
-    const resultWithNoAmtFilter = donorListFormat(donorObj);
-    const resultWithAmtFilter = applyAmtFilter(resultWithNoAmtFilter, minAmt, maxAmt);
-    if (!minAmt && !maxAmt){
-      return res.json(resultWithNoAmtFilter)
-    } else {
-      return res.json(resultWithAmtFilter)
-    }
-  }).catch(error => console.log(error));
-});
-const applyAmtFilter = (arr, minAmt, maxAmt) => {
-  const minAmtNum= parseFloat(minAmt)
-  const maxAmtNum= parseFloat(maxAmt)
-  if (minAmtNum >0 && !maxAmtNum) {
-    return arr.filter((o) => {
-      return o.totalAmountDonated.isGreaterThanOrEqualTo(minAmtNum);
-    });
-  }
-  if (maxAmtNum> 0 && !minAmtNum) {
-    return arr.filter((o) => {
-      return o.totalAmountDonated.isLessThanOrEqualTo(maxAmtNum);
-    })
-  }
-  if (minAmtNum >
-    0 && maxAmtNum > minAmtNum) {
-    return arr.filter((o) => {
-      return (
-        o.totalAmountDonated.isGreaterThanOrEqualTo(minAmtNum) &&
-        o.totalAmountDonated.isLessThanOrEqualTo(maxAmtNum)
+  })
+    .then((donorObj) => {
+      const result = donorListFormat(donorObj).filter(
+        (d) =>
+          d.totalAmountDonated.isGreaterThanOrEqualTo(minAmtNum) &&
+          d.totalAmountDonated.isLessThanOrEqualTo(maxAmtNum)
       );
+
+      return res.json(result);
+    })
+    .catch((error) => {
+      console.log(error)
+      return res.status(500).json({message: "A server error has occurred"})
     });
-  }
-};
+});
 
 function donorListFormat(data) {
-  const extractDonationAmt = data.map(
-    (d) =>
-      (d.donations.map(($) => parseFloat($.donationAmount)))
-  );
-  const sumDonationAmt = extractDonationAmt.map((s) => {
-    return summation(s);
-  });
-  const mergedArray = _.zip(data, sumDonationAmt);
-  const reformat = mergedArray.map((d) => {
-    return {
-      idNo: d[0].idNo,
-      name: d[0].name,
-      contactNo: d[0].contactNo,
-      email: d[0].email,
-      dnc: d[0].dnc,
-      totalAmountDonated: d[1],
-      donations: d[0].donations,
-    };
-  });
-  return reformat;
+  return data.map((d) => ({
+    idNo: d.idNo,
+    name: d.name,
+    contactNo: d.contactNo,
+    email: d.email,
+    dnc: d.dnc,
+    totalAmountDonated: sumDonations(d.donations),
+    donations: d.donations,
+  }));
+}
+
+function sumDonations(donations) {
+  const donationAmounts = donations.map((d) => BigNumber(d.donationAmount));
+  return summation(donationAmounts);
 }
 
 router.get("/count", function (req, res, next) {
