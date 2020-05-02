@@ -11,6 +11,7 @@ router.get("/", (req, res) => {
         res.json(result);
       })
       .catch((error) => {
+        console.log(error)
         res.status(500).json(error);
       });
   });

@@ -8,7 +8,7 @@ const summation = require("../lib/math");
 const BigNumber = require('bignumber.js')
 //donor list table
 router.get("/", function (req, res, next) {
-  const { from, to, taxDeduc, minAmt, maxAmt, sourceQuery } = req.query;
+  const { from, to, taxDeduc, minAmt, maxAmt, source } = req.query;
   const donationConditions = {};
   const sourceConditions = {};
 
@@ -24,8 +24,8 @@ router.get("/", function (req, res, next) {
   if ("taxDeduc" in req.query) {
     donationConditions.taxDeductible = taxDeduc;
   }
-  if (sourceQuery && sourceQuery.length > 0) {
-    sourceConditions.description = sourceQuery;
+  if (source && source.length > 0) {
+    sourceConditions.description = source;
   }
   return db.Donor.findAll({
     attributes: ["idNo", "name", "contactNo", "email", "dnc"],
@@ -54,7 +54,7 @@ router.get("/", function (req, res, next) {
     } else {
       return res.json(resultWithAmtFilter)
     }
-  });
+  }).catch(error => console.log(error));
 });
 const applyAmtFilter = (arr, minAmt, maxAmt) => {
   const minAmtNum= parseFloat(minAmt)
