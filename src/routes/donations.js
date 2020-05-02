@@ -244,7 +244,7 @@ function _buildDonation(csvDonation) {
     remarks: csvDonation["Remarks"],
     receiptNo: csvDonation["Receipt Serial No"],
     void: csvDonation["Void"],
-    taxDeductible: convertToBoolean(csvDonation["Name of Fund"]),
+    taxDeductible: isTaxDeductible(csvDonation["Name of Fund"]),
   };
 }
 
@@ -260,7 +260,7 @@ function _buildDonor(csvDonation) {
   };
 }
 
-function convertToBoolean(data) {
+function isTaxDeductible(data) {
   if (data === "Non-Tax Deductible Donations") {
     return false;
   } else {
