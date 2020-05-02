@@ -8,12 +8,10 @@ const summation = require("../lib/math");
 const BigNumber = require('bignumber.js')
 //donor list table
 router.get("/", function (req, res, next) {
-  /*  let offset = req.customParams.offset
-  let limit = req.customParams.limit */
   const { from, to, taxDeduc, minAmt, maxAmt, sourceQuery } = req.query;
-
   const donationConditions = {};
   const sourceConditions = {};
+
   if (from && to) {
     donationConditions.donationDate = {
       [Sequelize.Op.between]: [new Date(from), new Date(to)],
@@ -26,11 +24,6 @@ router.get("/", function (req, res, next) {
   if ("taxDeduc" in req.query) {
     donationConditions.taxDeductible = taxDeduc;
   }
-  /*   if (minAmt > 0 && maxAmt > minAmt) {
-    donationConditions.donationAmount = {
-      [Sequelize.Op.between] : [minAmt, maxAmt]
-    }
-  } */
   if (sourceQuery && sourceQuery.length > 0) {
     sourceConditions.description = sourceQuery;
   }
@@ -56,7 +49,6 @@ router.get("/", function (req, res, next) {
   }).then((donorObj) => {
     const resultWithNoAmtFilter = donorListFormat(donorObj);
     const resultWithAmtFilter = applyAmtFilter(resultWithNoAmtFilter, minAmt, maxAmt);
-
     if (!minAmt && !maxAmt){
       return res.json(resultWithNoAmtFilter)
     } else {
@@ -65,27 +57,24 @@ router.get("/", function (req, res, next) {
   });
 });
 const applyAmtFilter = (arr, minAmt, maxAmt) => {
-  console.log(arr);
-  console.log(minAmt)
-  if (minAmt >0 && !maxAmt) {
-    console.log('first')
+  const minAmtNum= parseFloat(minAmt)
+  const maxAmtNum= parseFloat(maxAmt)
+  if (minAmtNum >0 && !maxAmtNum) {
     return arr.filter((o) => {
-      return o.totalAmountDonated.isGreaterThanorEqualto(BigNumber(minAmt));
+      return o.totalAmountDonated.isGreaterThanOrEqualTo(minAmtNum);
     });
   }
-  if (maxAmt> 0 && !minAmt) {
-    console.log('second')
+  if (maxAmtNum> 0 && !minAmtNum) {
     return arr.filter((o) => {
-      return o.totalAmountDonated.isLessThanOrEqualTo(BigNumber(maxAmt));
+      return o.totalAmountDonated.isLessThanOrEqualTo(maxAmtNum);
     })
   }
-  if (minAmt >
-    0 && maxAmt>minAmt) {
-    console.log("test");
+  if (minAmtNum >
+    0 && maxAmtNum > minAmtNum) {
     return arr.filter((o) => {
       return (
-        o.totalAmountDonated.isGreaterThanOrEqualTo(BigNumber(minAmt)) &&
-        o.totalAmountDonated.isLessThanOrEqualTo(BigNumber(maxAmt))
+        o.totalAmountDonated.isGreaterThanOrEqualTo(minAmtNum) &&
+        o.totalAmountDonated.isLessThanOrEqualTo(maxAmtNum)
       );
     });
   }
@@ -94,7 +83,7 @@ const applyAmtFilter = (arr, minAmt, maxAmt) => {
 function donorListFormat(data) {
   const extractDonationAmt = data.map(
     (d) =>
-      (d.donationAmount = d.donations.map(($) => parseFloat($.donationAmount)))
+      (d.donations.map(($) => parseFloat($.donationAmount)))
   );
   const sumDonationAmt = extractDonationAmt.map((s) => {
     return summation(s);
