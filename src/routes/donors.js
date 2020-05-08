@@ -9,9 +9,12 @@ const BigNumber = require("bignumber.js");
 //donor list table
 router.get("/", function (req, res, next) {
   const { from, to, taxDeduc, minAmt, maxAmt, source } = req.query;
+  const now = new Date ()
+  const thisYear = now.getFullYear()
+  const defaultFromDate= new Date(thisYear, 0 , 1, 8)
+  console.log(defaultFromDate)
   const donationConditions = {};
   const sourceConditions = {};
-
   const minAmtNum = minAmt ? BigNumber(minAmt) : BigNumber(0);
   const maxAmtNum = maxAmt ? BigNumber(maxAmt) : BigNumber(Infinity);
   if (minAmtNum.isNaN() || maxAmtNum.isNaN()) {
@@ -30,9 +33,9 @@ router.get("/", function (req, res, next) {
       [Sequelize.Op.between]: [new Date(from), new Date(to)],
     };
   } else {
-    return res.status(422).json({
-      message: "Please enter both from and to date",
-    });
+    donationConditions.donationDate = { 
+    [Sequelize.Op.between]: [defaultFromDate, now]
+    }
   }
   if ("taxDeduc" in req.query) {
     donationConditions.taxDeductible = taxDeduc;
