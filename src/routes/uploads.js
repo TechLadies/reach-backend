@@ -14,6 +14,9 @@ router.get('/latest', function (req, res, next) {
   db.Upload.findAll({
     order: [['createdAt', 'DESC']],
   }).then((uploads) => {
+    if (uploads.length === 0) {
+      return res.status(204).end()
+    }
     res.json(uploads[0])
   })
 })
