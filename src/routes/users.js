@@ -95,7 +95,6 @@ router.post("/reset_password_email", function (req, res, next) {
      
   </body>`,
     };
-    //ES6
     sgMail
       .send(msg)
       .then(
