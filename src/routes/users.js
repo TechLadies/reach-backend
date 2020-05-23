@@ -100,71 +100,24 @@ router.post("/reset_password_email", function (req, res, next) {
       .send(msg)
       .then(
         (emailSent) => {
-          if (emailSent[0].statusCode === 202) {
-            return res.status(200).json({
+          let statusCode = emailSent[0].statusCode
+          if (statusCode === 202) {
+            return res.status(statusCode).json({
               message: `Kindly check your email for further instructions`,
-            })
-          }
+            }) 
+          } 
         }
       )
       .catch((error) => {
+        statusCode = error.code
+        let errorMsg = error.message
         console.log(error)
-        if (error) {
-          return res.status(500).json({
+          return res.status(statusCode).json({
             message:
-              "Oops there is an error...Please try again or contact your admin if the issue persist",
+              `Oops ${errorMsg} error...Please try again or contact your admin if the issue persist`,
           });
-        }
+        
       });
-    /* const mailConfig = {
-      host: 'smtp.mailtrap.io',
-      port: 2525,
-      auth: {
-        user: process.env.NODEMAILER_USER,
-        pass: process.env.NODEMAILER_PASSWORD,
-      },
-    } */
-    /* const transporter = nodeMailer.createTransport(mailConfig) */
-    /*  const mailOptions = {
-      from: '"Info" <info@example.com>', // sender address
-
-      to: "user.email", // list of receivers
-
-      subject: 'Reset Password', // Subject line
-      context: {
-        url:
-          'http://localhost:3000/reset_password?token=' +
-          user.resetPasswordToken,
-        name: user.firstName,
-      },
-      html: `<body>
-      <div>
-          <h3>Dear ${user.firstName},</h3>
-          <br>
-          <p>You requested for a password reset, kindly use this
-           <a href="http://reach-frontend.herokuapp.com/reset-password?token=${user.resetPasswordToken}">link</a>
-            to reset your password. This link is valid for one day.
-          </p>
-          <br>
-          <p>Cheers!</p>
-      </div>
-     
-  </body>`,
-    } */
-
-    /*     transporter.sendMail(mailOptions, (error, info) => {
-      if (!error) {
-        return res.json({
-          message: `Kindly check your email for further instructions`,
-        })
-      } else {
-        console.log(error)
-        return res.status(500).json({
-          message:
-            'Oops there is an error...Please try again or contact your admin if the issue persist',
-        })
-      }
-    }) */
   }
 });
 
