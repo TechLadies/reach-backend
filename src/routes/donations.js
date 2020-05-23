@@ -325,11 +325,18 @@ function _validateIncomingDonation(incoming) {
  * they are marked as a *new* donor.
  */
 
+function uniqByReceiptNo(array){
+  return array.map(r => r.receiptNo)
+  .filter((value,index,self) => {
+    return self.indexOf(value) === index
+  })
+}
+
 function _groupDonors(results) {
   const groupById = _.groupBy(results, "id");
   const groupedArr = _.map(groupById, (details, id) => {
-    const donationCount = details.length;
     const donationsArr = _.map(details, (d) => d.donationAmount);
+    const donationCount = uniqByReceiptNo(details).length
     const sum = summation(donationsArr);
     const name = _.last(details).name;
     const idNo = _.last(details).idNo;
@@ -351,7 +358,7 @@ function _groupDonors(results) {
 function summary(results) {
   const donations = _.map(results, (el) => el.donationAmount);
   const totalAmt = summation(donations);
-  const totalCount = results.length;
+  const totalCount = uniqByReceiptNo(results).length
   const dateFormatter = _.map(results, (el) => Date.parse(el.donationDate));
   const maxDate = new Date(Math.max.apply(null, dateFormatter));
   const minDate = new Date(Math.min.apply(null, dateFormatter));
