@@ -279,7 +279,7 @@ function tableFormat(donorResponse) {
     return {
       date: info.donationDate,
       amount: parseFloat(info.donationAmount),
-      source: info.donationSource,
+      source: info.Source.description,
       mode: info.PaymentType && info.PaymentType.description,
       tax: info.taxDeductible && info.taxDeductible.description,
       remarks: info.remarks,
