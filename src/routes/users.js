@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const debug = require('debug')('app:users')
 const db = require('../models/index')
-const nodeMailer = require('nodemailer')
+/* const nodeMailer = require('nodemailer') */
 const crypto = require('crypto')
 const bcrypt = require('bcrypt')
 
