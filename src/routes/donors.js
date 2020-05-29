@@ -9,9 +9,6 @@ const BigNumber = require("bignumber.js");
 //donor list table
 router.get("/", function (req, res, next) {
   const { from, to, taxDeduc, minAmt, maxAmt, source } = req.query;
-  const now = new Date ()
-  const thisYear = now.getFullYear()
-  const defaultFromDate= new Date(thisYear, 0 , 1, 8)
   const donationConditions = {};
   const sourceConditions = {};
   const minAmtNum = minAmt ? BigNumber(minAmt) : BigNumber(0);
