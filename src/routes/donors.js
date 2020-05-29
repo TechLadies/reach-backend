@@ -12,7 +12,6 @@ router.get("/", function (req, res, next) {
   const now = new Date ()
   const thisYear = now.getFullYear()
   const defaultFromDate= new Date(thisYear, 0 , 1, 8)
-  console.log(defaultFromDate)
   const donationConditions = {};
   const sourceConditions = {};
   const minAmtNum = minAmt ? BigNumber(minAmt) : BigNumber(0);
@@ -30,12 +29,12 @@ router.get("/", function (req, res, next) {
 
   if (from && to) {
     donationConditions.donationDate = {
-      [Sequelize.Op.between]: [new Date(from), new Date(to)],
+      [Sequelize.Op.between]: [from , to],
     };
   } else {
-    donationConditions.donationDate = { 
-    [Sequelize.Op.between]: [defaultFromDate, now]
-    }
+    return res.status(422).json({
+      message: "Please enter both from and to"
+    });
   }
   if ("taxDeduc" in req.query) {
     donationConditions.taxDeductible = taxDeduc;
