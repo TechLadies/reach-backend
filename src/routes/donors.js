@@ -9,6 +9,7 @@ const BigNumber = require("bignumber.js");
 //donor list table
 router.get("/", function (req, res, next) {
   const { from, to, taxDeduc, minAmt, maxAmt, source } = req.query;
+  const now = new Date ()
   const donationConditions = {};
   const sourceConditions = {};
   const minAmtNum = minAmt ? BigNumber(minAmt) : BigNumber(0);
@@ -23,16 +24,12 @@ router.get("/", function (req, res, next) {
       message: "minAmt is more than maxAmt"
     })
   }
+  const fromDate = from ? new Date(from) : new Date(0);
+  const toDate = to ? new Date(to) : now;
+  donationConditions.donationDate = {
+    [Sequelize.Op.between]: [fromDate , toDate]
+  };
 
-  if (from && to) {
-    donationConditions.donationDate = {
-      [Sequelize.Op.between]: [from , to],
-    };
-  } else {
-    return res.status(422).json({
-      message: "Please enter both from and to"
-    });
-  }
   if ("taxDeduc" in req.query) {
     donationConditions.taxDeductible = taxDeduc;
   }
