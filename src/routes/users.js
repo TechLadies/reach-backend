@@ -17,12 +17,9 @@ router.get("/", function (req, res, next) {
     res.json(users);
   });
 
-  // db,User,finOne({ where:  {email:'Tan@techladies' }}}
 });
 
 router.get("/:surname", (req, res) => {
-  console.log(req.params.surname);
-  console.log("haha");
   db.User.findOne({
     where: { lastName: req.params.surname },
     attributes: ["firstName", "lastName", "email"],
@@ -31,15 +28,6 @@ router.get("/:surname", (req, res) => {
   });
 });
 
-router.get("test/", function (req, res, next) {
-  debug("Hello World! dec 2019 here I am ");
-
-  db.User.findAll({
-    attributes: ["lastName", "email"],
-  }).then((users) => {
-    res.json(users);
-  });
-});
 
 router.post("/reset_password_email", function (req, res, next) {
   //  user by email
