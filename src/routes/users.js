@@ -7,40 +7,6 @@ const bcrypt = require("bcrypt");
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_TECHLADIES_TEMP_API);
 
-/* GET users listing. */
-router.get("/", function (req, res, next) {
-  debug("Hello World! dec 2019 here I am ");
-
-  db.User.findAll({
-    attributes: ["firstName", "lastName", "email"],
-  }).then((users) => {
-    res.json(users);
-  });
-
-  // db,User,finOne({ where:  {email:'Tan@techladies' }}}
-});
-
-router.get("/:surname", (req, res) => {
-  console.log(req.params.surname);
-  console.log("haha");
-  db.User.findOne({
-    where: { lastName: req.params.surname },
-    attributes: ["firstName", "lastName", "email"],
-  }).then((users) => {
-    res.json(users);
-  });
-});
-
-router.get("test/", function (req, res, next) {
-  debug("Hello World! dec 2019 here I am ");
-
-  db.User.findAll({
-    attributes: ["lastName", "email"],
-  }).then((users) => {
-    res.json(users);
-  });
-});
-
 router.post("/reset_password_email", function (req, res, next) {
   //  user by email
   db.User.findOne({

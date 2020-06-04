@@ -5,32 +5,6 @@ const _ = require("lodash");
 const Sequelize = require("sequelize");
 const summation = require("../lib/math");
 
-/* GET Donations records. */
-router.get("/", function (req, res, next) {
-  const { start, end } = req.query;
-  console.log(req.query);
-  res.status(200).json({});
-});
-
-router.post("/all", function (req, res, next) {
-  // GET Donations records.
-  db.Donation.findAll({
-    attributes: [
-      "donorId",
-      "donationDate",
-      "donationAmount",
-      "donationType",
-      "paymentRef",
-    ],
-  })
-    .then((donationsResponse) => {
-      res.status(200).json(donationsResponse);
-    })
-    .catch((error) => {
-      res.status(400).send(error);
-    });
-});
-
 //api for the dashboard
 router.post("/dashboard", function (req, res, next) {
   // JSON object
@@ -102,6 +76,7 @@ router.post("/dashboard", function (req, res, next) {
       }
     )
     .catch((error) => {
+      console.log(error)
       res.status(400).send(error);
     });
 });

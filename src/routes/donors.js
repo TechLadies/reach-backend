@@ -88,31 +88,6 @@ function sumDonations(donations) {
   return summation(donationAmounts);
 }
 
-router.get("/count", function (req, res, next) {
-  db.Donor.count().then((count) => {
-    console.log(count);
-    res.json(count);
-  });
-});
-
-router.get("/sums", function (req, res, next) {
-  db.Donation.sum("donationAmount").then((sum) => {
-    res.json(sum);
-  });
-});
-
-router.get("/edit", (req, res) => {
-  db.PreferredContact.findAll({
-    attributes: ["id", "description"],
-  })
-    .then((result) => {
-      res.json(result);
-    })
-    .catch((error) => {
-      res.status(500).json(error);
-    });
-});
-
 router.put("/edit/:idNo", (req, res) => {
   const { idNo: donorId } = req.params;
   const { remarks, preferredContact, dnc } = req.body;
@@ -139,6 +114,7 @@ router.put("/edit/:idNo", (req, res) => {
       res.json(result);
     });
   } catch (error) {
+    console.log(error)
     res.sendStatus(500).json({
       message: error,
     });
@@ -147,8 +123,7 @@ router.put("/edit/:idNo", (req, res) => {
 
 //donor details
 router.post("/details", function (req, res, next) {
-  // GET selected donor of idNo.
-  var ic_number = req.body.donorIdNo;
+  const ic_number = req.body.donorIdNo;
 
   db.Donor.findOne({
     where: {
@@ -302,6 +277,7 @@ router.get("/search", function (req, res) {
       res.status(200).json(reformat(donorObj));
     });
   } catch (err) {
+    console.log(err)
     res.status(500).json(err);
   }
 });
