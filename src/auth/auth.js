@@ -21,7 +21,8 @@ exports.login = function (req, res, next) {
       { userId: user.id },
       process.env.EXPRESS_SESSION_SECRET
     )
-    res.json({ token })
+    const userName = user.firstName + ' ' + user.lastName
+    res.json({ token, userName })
   })(req, res, next)
 }
 
