@@ -255,7 +255,7 @@ function _upsertDonorInsertDonation({
     transaction,
     returning: true,
   }).then(([donor, created]) => {
-    return new Promise((res) => {
+    return new Promise((res, rej) => {
       return db.Donation.upsert(
         {
           ...donation,
@@ -269,7 +269,7 @@ function _upsertDonorInsertDonation({
           ...previousResult,
           { ...donor.toJSON(), __isNew: created, ...donation },
         ])
-      );
+      ).catch(e => rej(e));
     });
   });
 }
