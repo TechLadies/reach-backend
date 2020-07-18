@@ -45,7 +45,7 @@ router.post("/reset_password_email", function (req, res, next) {
   function sendEmail(user) {
     const msg = {
       to: `${user.email}`,
-      from: "'REACH Temporary Account' <reach_donotreply@example.com>",
+      from: process.env.SENDGRID_VERIFIED_EMAIL,
       subject: "REACH account password reset",
       html: `<body>
       <div>
