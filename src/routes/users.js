@@ -5,7 +5,7 @@ const db = require("../models/index");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const sgMail = require("@sendgrid/mail");
-sgMail.setApiKey(process.env.SENDGRID_TECHLADIES_TEMP_API);
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 router.post("/reset_password_email", function (req, res, next) {
   //  user by email
