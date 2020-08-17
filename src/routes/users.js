@@ -52,7 +52,7 @@ router.post("/reset_password_email", function (req, res, next) {
           <h3>Dear ${user.firstName},</h3>
           <br>
           <p>You requested for a password reset, kindly use this
-           <a href="http://reach-frontend.herokuapp.com/reset-password?token=${user.resetPasswordToken}">link</a>
+           <a href="http://reach-dms-frontend.herokuapp.com/reset-password?token=${user.resetPasswordToken}">link</a>
             to reset your password. This link is valid for one day.
           </p>
           <br>
