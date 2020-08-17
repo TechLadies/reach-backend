@@ -58,6 +58,7 @@ router.post("/reset_password_email", function (req, res, next) {
           <br>
           <p>Cheers!</p>
       </div>
+      
      
   </body>`,
     };
